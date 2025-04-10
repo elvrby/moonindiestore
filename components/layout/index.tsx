@@ -117,6 +117,7 @@ const Index: React.FC = () => {
             </div>
           </div>
 
+            <div className="">
             
             <div className="flex md:mt-64 mt-10 items-center md:p-0 p-5">
                 <div className="w-11 h-11 rounded-full border-2 border-red-600 flex items-center justify-center">
@@ -126,7 +127,7 @@ const Index: React.FC = () => {
             </div>
 
           {/* Indikator untuk background image */}
-          <div className="flex space-x-2 justify-center md:justify-end mt-6">
+          <div className="flex space-x-2 justify-center md:justify-end md:mt-6 mt-96">
             {backgroundImages.map((_, index) => (
               <div
                 key={index}
@@ -138,6 +139,9 @@ const Index: React.FC = () => {
               ></div>
             ))}
           </div>
+
+          </div>
+
         </div>
       </div>
     </main>
