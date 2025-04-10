@@ -87,6 +87,7 @@ const Index: React.FC = () => {
                   width="35px"
                   height="35px"
                   stroke="#BABABA"
+                  fill="none"
                   strokeWidth={8}
                   id="Layer_1"
                   viewBox="0 0 128 128"
@@ -106,6 +107,7 @@ const Index: React.FC = () => {
                   width="30px"
                   height="30px"
                   stroke="#BABABA"
+                  fill="none"
                   strokeWidth={30}
                   viewBox="0 0 448 512"
                   xmlns="http://www.w3.org/2000/svg"
