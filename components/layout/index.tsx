@@ -40,21 +40,20 @@ const Index: React.FC = () => {
         <div className="md:p-40 md:pt-16 md:pb-5">
           <div className="flex justify-between">
             <div>
-              <div className="shadow-black  drop-shadow-2xl">
-                <h1 className="text-6xl font-semibold mb-2">
+              <div className="shadow-black  drop-shadow-2xl text-sm p-5">
+                <h1 className="md:text-6xl text-4xl font-semibold mb-2">
                   <span className="text-red-700">BatteryParts</span> - Drive
                   <br />
                   With Confident
                 </h1>
                 <span>
                   Jadikan hari harimu berkendara lebih nyaman dan bertenaga
-                  <br />
                   serta tampil dengan percaya diri
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-col space-y-6 items-center relative">
+            <div className="md:flex flex-col space-y-6 items-center relative hidden">
               <a
                 href="https://www.instagram.com/p/DIQ68O0B-xp/?utm_source=ig_web_copy_link"
                 className=""
@@ -119,7 +118,7 @@ const Index: React.FC = () => {
           </div>
 
             
-            <div className="flex mt-64 items-center">
+            <div className="flex md:mt-64 mt-10 items-center md:p-0 p-5">
                 <div className="w-11 h-11 rounded-full border-2 border-red-600 flex items-center justify-center">
                     <svg className="pl-1" width={"28px"} height={"28px"} fill="white" id="Layer_1" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M405.2,232.9L126.8,67.2c-3.4-2-6.9-3.2-10.9-3.2c-10.9,0-19.8,9-19.8,20H96v344h0.1c0,11,8.9,20,19.8,20  c4.1,0,7.5-1.4,11.2-3.4l278.1-165.5c6.6-5.5,10.8-13.8,10.8-23.1C416,246.7,411.8,238.5,405.2,232.9z"/></svg>
                 </div>
@@ -127,7 +126,7 @@ const Index: React.FC = () => {
             </div>
 
           {/* Indikator untuk background image */}
-          <div className="flex space-x-2 justify-end mt-6">
+          <div className="flex space-x-2 justify-center md:justify-end mt-6">
             {backgroundImages.map((_, index) => (
               <div
                 key={index}
