@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import Link from "next/link";
+
 
 const HeaderComponent: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -10,9 +11,27 @@ const HeaderComponent: React.FC = () => {
     setNavOpen(!navOpen);
   };
 
+      // Scroll Effect
+      const [isScrolled, setIsScrolled] = useState(false);
+
+      useEffect(() => {
+        const handleScroll = () => {
+          if (window.scrollY > 50) {
+            setIsScrolled(true);
+          } else {
+            setIsScrolled(false);
+          }
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => {
+          window.removeEventListener("scroll", handleScroll);
+        };
+      }, []);
+
   return (
-    <header className="w-full">
-      <div className=" w-full flex justify-between items-center md:py-5 md:px-40 p-5">
+    <header className="w-full navbar h-14 flex items-center justify-center z-50">
+      <div className={`fixed top-0 w-full lg:flex hidden h-16 items-center justify-between pl-40 pr-40 z-20 transition-colors duration-300 ${isScrolled ? "navbar bg-zinc-900 shadow-md" : "bg-transparent"}`}>
         {/* Logo di kiri */}
         <div className="flex-shrink-0">
           <Link href="/"> 

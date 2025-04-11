@@ -34,7 +34,7 @@ const Index: React.FC = () => {
         }}
       >
         
-        <div className="text-white">
+        <div className="text-white z-50">
           <HeaderComponent />
         </div>
 
@@ -152,7 +152,7 @@ const Index: React.FC = () => {
       {/* konten 2 */}
       <div className="w-full block">
         <div className="w-full items-center justify-center flex">
-          <div className=" md:max-w-2xl lg:max-w-7xl w-full lg:h-40 h-16 bg-zinc-800 lg:bg-zinc-900 lg:absolute  lg:-bottom-36 md:bottom-20 relative">
+          <div className=" md:max-w-2xl lg:max-w-7xl w-full lg:h-40 h-16 bg-zinc-800 lg:bg-zinc-900 lg:absolute  lg:-bottom-36 md:bottom-20 relative z-1">
             <div className="w-full h-full items-center flex justify-between lg:p-14 px-4">
               {/* Honda */}
               <svg className="lg:m-10 m-2" width="89" height="71" viewBox="0 0 89 71" fill="none" xmlns="http://www.w3.org/2000/svg">
