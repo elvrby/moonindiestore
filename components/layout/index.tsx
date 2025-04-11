@@ -39,7 +39,7 @@ const Index: React.FC = () => {
         </div>
 
         
-        <div className="md:p-40 md:pt-16 md:pb-5 h-screen">
+        <div className="md:p-40 md:pt-16 md:pb-5 lg:h-screen">
           {/* Deskripsi */}
           <div className="flex justify-between h-3/5">
             <div>
