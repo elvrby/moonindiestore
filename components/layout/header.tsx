@@ -12,7 +12,7 @@ const HeaderComponent: React.FC = () => {
 
   return (
     <header className="w-full">
-      <div className="container mx-auto flex justify-between items-center md:p-5 md:pl-40 md:pr-40 p-5">
+      <div className="container mx-auto flex justify-between items-center md:p-5 md:px-16 p-5">
         {/* Logo di kiri */}
         <div className="flex-shrink-0">
           <Link href="/"> 

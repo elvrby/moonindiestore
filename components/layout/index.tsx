@@ -25,7 +25,7 @@ const Index: React.FC = () => {
   }, [backgroundImages.length]);
 
   return (
-    <main>
+    <main className="bg-zinc-900 h-scs">
       <div
         className="relative min-h-screen bg-cover bg-center transition-all duration-1000 "
         style={{
@@ -37,7 +37,9 @@ const Index: React.FC = () => {
           <HeaderComponent />
         </div>
 
+        
         <div className="md:p-40 md:pt-16 md:pb-5">
+          {/* Deskripsi */}
           <div className="flex justify-between">
             <div>
               <div className="shadow-black  drop-shadow-2xl text-sm p-5">
@@ -117,24 +119,25 @@ const Index: React.FC = () => {
             </div>
           </div>
 
+          {/* Play Dokumentasi */}
             <div className="">
             
-            <div className="flex md:mt-64 mt-10 items-center md:p-0 p-5">
+            <a href="" className="flex md:mt-52 mt-10 items-center md:p-0 p-5 md:w-56 ">
                 <div className="w-11 h-11 rounded-full border-2 border-red-600 flex items-center justify-center">
                     <svg className="pl-1" width={"28px"} height={"28px"} fill="white" id="Layer_1" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M405.2,232.9L126.8,67.2c-3.4-2-6.9-3.2-10.9-3.2c-10.9,0-19.8,9-19.8,20H96v344h0.1c0,11,8.9,20,19.8,20  c4.1,0,7.5-1.4,11.2-3.4l278.1-165.5c6.6-5.5,10.8-13.8,10.8-23.1C416,246.7,411.8,238.5,405.2,232.9z"/></svg>
                 </div>
                 <span className="ml-5">Lihat Dokumentasi</span>
-            </div>
+            </a>
 
           {/* Indikator untuk background image */}
           <div className="flex space-x-2 justify-center md:justify-end md:mt-6 mt-96">
             {backgroundImages.map((_, index) => (
               <div
                 key={index}
-                className={`w-12 h-3 rounded-md ${
+                className={`w-16 h-2  ${
                   currentImageIndex === index
                     ? "bg-red-700"
-                    : "border-2 border-red-700"
+                    : " bg-zinc-700"
                 }`}
               ></div>
             ))}
@@ -144,6 +147,19 @@ const Index: React.FC = () => {
 
         </div>
       </div>
+
+      <div className="md:p-36 md:pt-0 md:pb-0">
+        <div>
+          <div className="max-w-screen-xl w-full h-36 bg-zinc-900 absolute  -bottom-20">
+
+          </div>
+        </div>
+        
+        <div>
+          <h1>test</h1>
+        </div>
+      </div>
+
     </main>
   );
 };
