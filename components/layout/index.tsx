@@ -39,9 +39,9 @@ const Index: React.FC = () => {
         </div>
 
         
-        <div className="md:p-40 md:pt-16 md:pb-5">
+        <div className="md:p-40 md:pt-16 md:pb-5 h-screen">
           {/* Deskripsi */}
-          <div className="flex justify-between">
+          <div className="flex justify-between h-3/5">
             <div>
               <div className="shadow-black  drop-shadow-2xl text-sm p-5 md:p-0">
                 <h1 className="md:text-6xl text-4xl font-semibold mb-2">
@@ -123,7 +123,7 @@ const Index: React.FC = () => {
           {/* Play Dokumentasi */}
             <div className="">
             
-            <a href="" className="flex md:mt-52 mt-10 items-center md:p-0 p-5 md:w-56 ">
+            <a href="" className="flex md:mt-0 mt-10 items-center md:p-0 p-5 md:w-56 ">
                 <div className="w-11 h-11 rounded-full border-2 border-red-600 flex items-center justify-center">
                     <svg className="pl-1" width={"28px"} height={"28px"} fill="white" id="Layer_1" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M405.2,232.9L126.8,67.2c-3.4-2-6.9-3.2-10.9-3.2c-10.9,0-19.8,9-19.8,20H96v344h0.1c0,11,8.9,20,19.8,20  c4.1,0,7.5-1.4,11.2-3.4l278.1-165.5c6.6-5.5,10.8-13.8,10.8-23.1C416,246.7,411.8,238.5,405.2,232.9z"/></svg>
                 </div>
@@ -149,9 +149,10 @@ const Index: React.FC = () => {
         </div>
       </div>
 
+      {/* konten 2 */}
       <div className="w-full block">
         <div className="w-full items-center justify-center flex">
-          <div className=" md:max-w-2xl lg:max-w-7xl w-full lg:h-40 h-16 bg-zinc-800 lg:bg-zinc-900 lg:absolute  lg:-bottom-20 md:bottom-20 relative">
+          <div className=" md:max-w-2xl lg:max-w-7xl w-full lg:h-40 h-16 bg-zinc-800 lg:bg-zinc-900 lg:absolute  lg:-bottom-36 md:bottom-20 relative">
             <div className="w-full h-full items-center flex justify-between lg:p-14 px-4">
               {/* Honda */}
               <svg className="lg:m-10 m-2" width="89" height="71" viewBox="0 0 89 71" fill="none" xmlns="http://www.w3.org/2000/svg">
