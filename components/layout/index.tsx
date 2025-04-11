@@ -42,7 +42,7 @@ const Index: React.FC = () => {
           {/* Deskripsi */}
           <div className="flex justify-between">
             <div>
-              <div className="shadow-black  drop-shadow-2xl text-sm p-5">
+              <div className="shadow-black  drop-shadow-2xl text-sm">
                 <h1 className="md:text-6xl text-4xl font-semibold mb-2">
                   <span className="text-red-700">BatteryParts</span> - Drive
                   <br />
