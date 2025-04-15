@@ -251,6 +251,7 @@ const Index: React.FC = () => {
               </div>
 
             </div>
+            
             {/* Mobile */}
             <div 
               className="lg:hidden top-0 left-0 w-full h-full bg-zinc-800 z-10 rounded-lg">
@@ -284,8 +285,15 @@ const Index: React.FC = () => {
 
         </div>
 
-        <div>
-          <h1>test</h1>
+        <div className="w-full inline-flex">
+            {/* Judul Text Services Kita */}
+            <div className="w-full text-center font-semibold">
+                <span className="text-sm text-red-700">WHAT WE OFFER</span>
+                <h1 className="text-4xl">Our Services</h1>
+            </div>
+            <div>
+              
+            </div>
         </div>
 
       </div>

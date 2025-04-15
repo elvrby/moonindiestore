@@ -31,7 +31,7 @@ const HeaderComponent: React.FC = () => {
 
   return (
     <header className="w-full navbar h-14 flex items-center justify-center z-50">
-      <div className={`fixed top-0 w-full lg:flex hidden h-16 items-center justify-between pl-40 pr-40 z-20 transition-colors duration-300 ${isScrolled ? "navbar bg-zinc-900 shadow-md" : "bg-transparent"}`}>
+      <div className={`fixed top-0 w-full flex p-5 lg:flex h-16 items-center justify-between lg:pl-40 lg:pr-40 z-20 transition-colors duration-300 ${isScrolled ? "navbar bg-zinc-900 shadow-md" : "bg-transparent"}`}>
         {/* Logo di kiri */}
         <div className="flex-shrink-0">
           <Link href="/"> 
@@ -80,7 +80,7 @@ const HeaderComponent: React.FC = () => {
 
       {/* Menu navigasi untuk tampilan mobile */}
       {navOpen && (
-        <nav className="md:hidden w-full">
+        <nav className="fixed md:hidden w-full">
           <ul className="flex flex-col items-center space-y-4 pb-4">
             <li>
               <Link href="/" onClick={() => setNavOpen(false)}>
