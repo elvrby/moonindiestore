@@ -7,6 +7,13 @@
   --foreground: #171717;
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -15,7 +22,138 @@
 }
 
 body {
-  color: var(--foreground);
   background: var(--background);
+  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+body.dark-theme{
+  background-color: black;
+}
+
+body.dark-theme .bgr{
+  background-color: rgb(33, 33, 33); /* Light mode background */
+  color: white; /* Light mode text color */
+  overflow-y: auto; /* Atau scroll */
+  height: 100%;
+}
+body.dark-theme .searchbar{
+  background-color: rgb(33, 33, 33); /* Light mode background */
+  color: white;
+}
+body.dark-theme .searchbarbtn{
+  background-color: rgb(69, 69, 69); /* Light mode background */
+  color: white;
+}
+body.dark-theme .btnclm{
+  background-color: rgb(72, 72, 72);
+  color: white; 
+  overflow-y: auto; 
+    height: 100%;
+}
+body.dark-theme main{
+  background-color: #000000; /* Dark mode background */
+  color: #ffffff; /* Dark mode text color */
+  transition: background-color 0.3s ease;
+}
+body.dark-theme .navbar{
+  background-color: #151515; /* Dark mode background */
+  color: #ffffff; /* Dark mode text color */
+}
+body.dark-theme input{
+  background: #4A4A4A;
+  border: #4A4A4A;
+}
+body.dark-theme .line{
+  border: #4A4A4A;
+  border-top: solid 1px #4A4A4A;
+}
+body.dark-theme .ofill{
+  fill: white;
+}
+body.dark-theme .ostroke{
+  stroke: white;
+}
+body.dark-theme .bdown{
+  border: 2px solid #4A4A4A;
+}
+body.dark-theme .bdown:hover{
+  border: 2px solid #4A4A4A;
+  background: #4A4A4A;
+}
+body.dark-theme .bannerboxfacility{
+  background-color: #232323;
+}
+
+ul:hover .textniconH {
+  fill: white;
+  color: white;
+  transition: 0.4s;
+}
+
+.boxH:hover{
+  background-color: #242424;
+  border-radius: 0.5rem;
+}
+
+.shadowH:hover {
+  box-shadow: 
+    0 10px 6px -1px rgba(255, 0, 0, 0.1),
+    0 5px 10px -1px rgba(255, 0, 0, 0.242);
+}
+
+
+/* Light theme */
+body.light-theme{
+  background-color: #F3F3F3;
+}
+body.light-theme .bgr{
+  background-color: #F3F3F3; /* Dark mode background */
+  color: black; /* Dark mode text color */
+  overflow-y: auto; /* Atau scroll */
+    height: 100%;
+}
+body.light-theme .searchbar{
+  background-color: #F3F3F3; /* Dark mode background */
+  color: black; /* Dark mode text color */
+}
+body.light-theme .btnclm{
+  background-color: #F3F3F3; 
+  color: black; 
+  overflow-y: auto; 
+    height: 100%;
+}
+
+body.light-theme main{
+  background-color: #F3F3F3; /* Light mode background */
+  color: #000000; /* Light mode text color */
+  transition: background-color 0.3s ease;
+}
+body.light-theme .navbar{
+  background-color: #F3F3F3; /* Light mode background */
+  color: #000000; /* Light mode text color */
+}
+
+body.light-theme .ofill{
+  fill: black;
+}
+body.light-theme .ostroke{
+  stroke: black;
+}
+body.light-theme input{
+  background: #f3f3f3;
+}
+body.light-theme .line{
+  border-top: solid 1px #dadada;
+}
+body.light-theme .bdown{
+  border: 2px solid #4A4A4A;
+}
+body.light-theme .bdown:hover{
+  border: 2px solid #4A4A4A;
+  background: #4A4A4A;
+  color: white;
+}
+body.light-theme .bannerboxfacility{
+  background-color: #cdd9ec;
 }

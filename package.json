@@ -13,8 +13,8 @@
     "firebase": "^11.6.0",
     "js-cookie": "^3.0.5",
     "next": "^15.3.0",
-    "react": "19.0.0-rc-69d4b800-20241021",
-    "react-dom": "19.0.0-rc-69d4b800-20241021"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
