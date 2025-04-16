@@ -9,7 +9,8 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot
+  onSnapshot,
+  Timestamp
 } from "firebase/firestore";
 
 interface Comment {
@@ -18,7 +19,7 @@ interface Comment {
   username: string;
   email: string;
   comment: string;
-  timestamp: any;
+  timestamp: Timestamp;
   parentId?: string;
 }
 
