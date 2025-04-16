@@ -5,11 +5,6 @@ import Link from "next/link";
 import MobileComponent from '../addons/mobileheader';
 
 const HeaderComponent: React.FC = () => {
-  const [navOpen, setNavOpen] = useState(false);
-
-  const handleToggle = () => {
-    setNavOpen(!navOpen);
-  };
 
       // Scroll Effect
       const [isScrolled, setIsScrolled] = useState(false);

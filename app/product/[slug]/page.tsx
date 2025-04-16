@@ -25,8 +25,10 @@ function convertYoutubeUrl(url: string): string {
     }
     return url;
   } catch (error) {
+    console.warn("Invalid YouTube URL:", url, error);
     return url;
   }
+  
 }
 
 export default async function ProductPage({ params }: PageProps) {

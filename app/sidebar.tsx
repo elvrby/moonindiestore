@@ -6,7 +6,7 @@ const SidebarComponent: React.FC = () =>{
         <main className="fixed w-">
             <header className='w-full h-screen p-2 text-zinc-500 font-bold hidden lg:block'>
                       <div className='bg-zinc-900 w-full p-5 pt-2 pb-2 pl-2 block justify-between rounded-lg'>
-                        <ul className='w-full p-4 pt-2 flex'><li><a className='w-full flex items-center textniconH' href="/">
+                        <ul className='w-full p-4 pt-2 flex'><li><a className='w-full flex items-center textniconH' href="">
                         <svg className='w-7 mr-2 fill-zinc-500 textniconH' baseProfile="tiny" version="1.2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,3c0,0-6.186,5.34-9.643,8.232C2.154,11.416,2,11.684,2,12c0,0.553,0.447,1,1,1h2v7c0,0.553,0.447,1,1,1h3  c0.553,0,1-0.448,1-1v-4h4v4c0,0.552,0.447,1,1,1h3c0.553,0,1-0.447,1-1v-7h2c0.553,0,1-0.447,1-1c0-0.316-0.154-0.584-0.383-0.768  C18.184,8.34,12,3,12,3z"/></svg>
                         Home</a></li></ul>
                         <ul className='w-full p-4 pb-2 flex'><li><a className='w-full flex items-center textniconH' href="">
