@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import HeaderComponent from "./header";
 import Image from "next/image";
-import NewProductComponent from "@/app/newproduct";
+import NewProductComponent from "@/app/productsLayout";
 
 const Index: React.FC = () => {
   // Array background image
@@ -421,7 +421,7 @@ const Index: React.FC = () => {
       </div>
 
       {/* Konten 3 */}
-      <div>
+      <div className="p-5 md:px-32">
             <NewProductComponent></NewProductComponent>
       </div>
 

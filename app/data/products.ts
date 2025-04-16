@@ -14,7 +14,7 @@ export interface Media {
 export interface Product {
   id: number;
   slug: string;
-  category: "game" | "aplikasi";
+  category: "Aki Motor" | "Aki Mobil";
   title: string;
   subtitle: string;
   image: string;
@@ -26,13 +26,13 @@ export interface Product {
 export const products: Product[] = [
   {
     id: 4,
-    slug: "adobe-creative-clouds",
-    category: "aplikasi",
-    title: "Adobe Creative Clouds",
+    slug: "Aki Motor Heybatt GTZ 5S",
+    category: "Aki Motor",
+    title: "Aki Mobil Heybatt",
     subtitle: "Applications",
-    image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742392482/Image/App/Adobe%20Cloud%20Creative/y47eoe1e96rvioijs1va.jpg",
+    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
     description:
-      "Adobe Creative Clouds menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
+      "Aki Mobil Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
     downloadButtons: [
       {
         label: "Torrent",
@@ -51,7 +51,7 @@ export const products: Product[] = [
   {
     id: 3,
     slug: "microsoft-office",
-    category: "aplikasi",
+    category: "Aki Mobil",
     title: "Microsoft Office",
     subtitle: "Applications",
     image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742392480/Image/App/MSOffice/mo5oxei5tqff93by4iiv.jpg",
@@ -77,7 +77,7 @@ export const products: Product[] = [
   {
     id: 2,
     slug: "elden-ring-nighrein",
-    category: "game",
+    category: "Aki Motor",
     title: "Elden Ring: NIGHTREIN",
     subtitle: "Action Exploration RPG",
     image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742391214/Image/Game/ELDENRING:NIGHTREIN/y4wirmzdlfqag2f6eopl.png",
@@ -103,7 +103,7 @@ export const products: Product[] = [
   {
     id: 1,
     slug: "grand-theft-auto-v",
-    category: "game",
+    category: "Aki Motor",
     title: "Grand Theft Auto V Enhanced",
     subtitle: "Action Story RPG",
     image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383622/Image/Game/GTA5/hihszbxmnjxyt5wgcjax.jpg",
