@@ -179,7 +179,7 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
 
         <button
           onClick={handlePayment}
-          className="w-full py-2 bg-green-500 text-white rounded"
+          className="w-full py-2 bg-red-800 text-white rounded"
         >
           Bayar
         </button>

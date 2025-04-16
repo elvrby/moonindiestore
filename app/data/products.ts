@@ -54,14 +54,14 @@ export const products: Product[] = [
   },
   {
     id: 3,
-    slug: "microsoft-office",
+    slug: "Aki-Mobil-Heybatt",
     category: "Aki Mobil",
-    title: "Microsoft Office",
-    subtitle: "Applications",
-    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
+    title: "Aki Mobil Heybatt",
+    subtitle: "Aki Mobil Heybatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
+    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744830101/Heybatt_guhprh.jpg",
     description:
       "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
-      price: "135.000 - 95.000",
+      price: "860.000 - 425.000",
       beliSekarang: "beli", //ubah fungsi ini
       downloadButtons: [
       {
