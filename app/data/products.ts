@@ -28,11 +28,11 @@ export const products: Product[] = [
     id: 4,
     slug: "Aki Motor Heybatt GTZ 5S",
     category: "Aki Motor",
-    title: "Aki Mobil Heybatt",
+    title: "Aki Motor Heybatt GTZ 5S",
     subtitle: "Applications",
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
     description:
-      "Aki Mobil Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
+      "Aki Motor Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
     downloadButtons: [
       {
         label: "Torrent",
