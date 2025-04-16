@@ -1,11 +1,29 @@
 "use client";
 import Image from "next/image";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import { useState } from "react";
 import { products, Product } from "./data/products";
+import ProductPopup from "./components/addons/productPopup";
+
+const inter = Inter({ subsets: ["latin"] });
 
 const NewProductComponent: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<"semua" | "Aki Motor" | "Aki Mobil">("semua");
+  // State untuk mengontrol tampilan popup dan produk yang sedang dipilih
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+  // Fungsi yang dipanggil ketika tombol Beli diklik
+  const handleBuyClick = (productId: number, e: React.MouseEvent) => {
+    // Cegah navigasi karena event berada di dalam Link
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Set produk yang dipilih dan tampilkan popup
+    setSelectedProductId(productId);
+    setShowPopup(true);
+  };
 
   const filteredProducts =
     selectedCategory === "semua"
@@ -36,33 +54,63 @@ const NewProductComponent: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
-        {filteredProducts.map((product: Product) => (
+      <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5 ${inter.className}`}>
+        {filteredProducts.map((product) => (
+          // Bungkus kartu produk dengan Link agar user bisa klik di area lain untuk melihat detail
           <Link key={product.id} href={`/product/${product.slug}`}>
-            <div className="bg-zinc-800 rounded-2xl shadowH cursor-pointer lg:h-80">
-              <div className="relative h-40 w-full">
+            <div className="bg-zinc-800 rounded-2xl shadowH cursor-pointer lg:h-96 relative">
+              <div className="relative h-52 w-full">
                 <Image
-                  className="rounded-t-2xl"
+                  className="rounded-t-xl"
                   src={product.image}
                   alt={`Gambar ${product.title}`}
                   fill
                   style={{ objectFit: "cover", objectPosition: "center" }}
                 />
               </div>
-              <div className="p-3">
-                <div className="flex items-center justify-between mt-2 mb-2">
-                  <span className="text-xs bg-red-800 pl-3 pr-3 rounded-lg">Latest</span>
-                </div>
-                <h2 className="font-bold text-xl">{product.title}</h2>
-                <span className="text-xs" style={{ wordSpacing: "0.5rem" }}>
+              <div className="p-3 block w-full">
+                <h2 className="font-bold text-lg">{product.title}</h2>
+                <p className="text-xs font-extralight my-1 mb-2">
                   {product.subtitle}
-                </span>
+                </p>
+                <p className="text-sm italic font-semibold w-full">
+                  {product.price.includes(" - ") ? (
+                    <>
+                      <span className="mr-2">
+                        RP.{" "}
+                        <span className="line-through">
+                          {product.price.split(" - ")[0].replace("RP.", "").trim()}
+                        </span>
+                      </span>
+                      {product.price.split(" - ")[1]}
+                    </>
+                  ) : (
+                    product.price
+                  )}
+                </p>
+
+                {/* Tombol Beli yang memunculkan popup, kita hindari event navigasi Link */}
+                <button
+                  onClick={(e) => handleBuyClick(product.id, e)}
+                  className="mt-3 border-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                >
+                  Beli
+                </button>
               </div>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* Tampilkan popup jika state showPopup true */}
+      {showPopup && selectedProductId && (
+        <ProductPopup
+          productId={selectedProductId}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </div>
+    
   );
 };
 

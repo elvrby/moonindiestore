@@ -12,9 +12,11 @@
     "@types/js-cookie": "^3.0.6",
     "firebase": "^11.6.0",
     "js-cookie": "^3.0.5",
+    "midtrans-client": "^1.4.2",
     "next": "^15.3.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",

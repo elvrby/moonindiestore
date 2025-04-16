@@ -37,6 +37,7 @@ body.dark-theme .bgr{
   overflow-y: auto; /* Atau scroll */
   height: 100%;
 }
+
 body.dark-theme .searchbar{
   background-color: rgb(33, 33, 33); /* Light mode background */
   color: white;
@@ -89,6 +90,11 @@ ul:hover .textniconH {
   fill: white;
   color: white;
   transition: 0.4s;
+}
+
+body.dark-theme .box{
+  background-color: #242424;
+  color: white;
 }
 
 .boxH:hover{

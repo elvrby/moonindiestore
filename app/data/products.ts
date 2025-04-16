@@ -19,6 +19,8 @@ export interface Product {
   subtitle: string;
   image: string;
   description: string;
+  price: string;
+  beliSekarang: string; //ubah fungsi ini
   downloadButtons?: DownloadButton[];
   media?: Media;
 }
@@ -26,14 +28,16 @@ export interface Product {
 export const products: Product[] = [
   {
     id: 4,
-    slug: "Aki Motor Heybatt GTZ 5S",
+    slug: "Aki-Motor-Heybatt-GTZ-5S",
     category: "Aki Motor",
     title: "Aki Motor Heybatt GTZ 5S",
-    subtitle: "Applications",
+    subtitle: "Bukan hanya melayanin pengantian Aki, tapi kami juga melayanin untuk charger battery dengan cepat dan dengan harga terjangkau",
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
     description:
       "Aki Motor Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
-    downloadButtons: [
+    price: " RP. 135.000 - 95.000",
+    beliSekarang: "beli", //ubah fungsi ini
+      downloadButtons: [
       {
         label: "Torrent",
         title: "Download",
@@ -54,10 +58,12 @@ export const products: Product[] = [
     category: "Aki Mobil",
     title: "Microsoft Office",
     subtitle: "Applications",
-    image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742392480/Image/App/MSOffice/mo5oxei5tqff93by4iiv.jpg",
+    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
     description:
       "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
-    downloadButtons: [
+      price: "135.000 - 95.000",
+      beliSekarang: "beli", //ubah fungsi ini
+      downloadButtons: [
       {
         label: "Ranoz.gg",
         title: "Download",
@@ -74,61 +80,5 @@ export const products: Product[] = [
       ],
     },
   },
-  {
-    id: 2,
-    slug: "elden-ring-nighrein",
-    category: "Aki Motor",
-    title: "Elden Ring: NIGHTREIN",
-    subtitle: "Action Exploration RPG",
-    image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742391214/Image/Game/ELDENRING:NIGHTREIN/y4wirmzdlfqag2f6eopl.png",
-    description:
-      "Elden Ring: NIGHTREIN adalah game RPG aksi dengan dunia yang luas, penuh tantangan, dan eksplorasi yang menarik.",
-    downloadButtons: [
-      {
-        label: "Official Elden Site",
-        title: "Download",
-        link: "https://download-link.com/elden-ring",
-      },
-    ],
-    media: {
-      video: "https://example.com/videos/eldenring.mp4", // URL video
-      photos: [
-        "/IMG/EldenRing-1.png",
-        "/IMG/EldenRing-3.png",
-        "/IMG/EldenRing-4.png",
-        "/IMG/EldenRing-5.png",
-      ],
-    },
-  },
-  {
-    id: 1,
-    slug: "grand-theft-auto-v",
-    category: "Aki Motor",
-    title: "Grand Theft Auto V Enhanced",
-    subtitle: "Action Story RPG",
-    image: "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383622/Image/Game/GTA5/hihszbxmnjxyt5wgcjax.jpg",
-    description:
-      "Grand Theft Auto V adalah game aksi yang menawarkan dunia terbuka dengan cerita mendalam dan gameplay yang seru.",
-    downloadButtons: [
-      {
-        label: "Datanodes",
-        title: "Download",
-        link: "https://datanodes.to/cc7dakefxy6u/Grand-Theft-Auto-V-Enhanced.rar",
-      },
-      {
-        label: "1Fichier",
-        title: "Download",
-        link: "https://1fichier.com/?jw9ke74i34b1c1r20yjv",
-      },
-    ],
-    media: {
-      video: "https://www.youtube.com/watch?v=QkkoHAzjnUs",
-      photos: [
-        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383891/Image/Game/GTA5/gqacyamkiz05wkosbaqk.png",
-        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383886/Image/Game/GTA5/qws7gqriqhrce7x7wiwq.png",
-        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383885/Image/Game/GTA5/lhjc5ibo3px2vislq5ki.png",
-        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742383890/Image/Game/GTA5/n3xoreivixukun5exrdk.png",
-      ],
-    },
-  },
+  
 ];

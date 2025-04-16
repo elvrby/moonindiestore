@@ -36,7 +36,7 @@ const MobileComponent: React.FC = () => {
       <div className="fixed navbar w-full h-14 lg:hidden shadow-sm z-20">
         <div className="w-full flex items-center justify-between pl-4 pr-4 p-3 2xl:pl-80 2xl:pr-80">
           <div className="w-full flex-1 text-center items-center justify-center flex font-semibold text-lg">
-            <a href=''>NexGames</a>
+            <a href=''>Akimania</a>
           </div>
           <button className="w-7 flex items-center justify-end" onClick={handleToggleNavbar}>
             <svg 
