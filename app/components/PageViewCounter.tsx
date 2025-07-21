@@ -1,14 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { db } from "../../src/lib/firebaseConfig";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  increment,
-  onSnapshot
-} from "firebase/firestore";
+import { db } from "@/libs/firebase/config";
+import { doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "firebase/firestore";
 
 interface PageViewCounterProps {
   slug: string;
@@ -47,11 +40,7 @@ const PageViewCounter: React.FC<PageViewCounterProps> = ({ slug }) => {
     return () => unsubscribe();
   }, [slug]);
 
-  return (
-    <div className="mt-4 text-sm text-gray-600">
-      Total Views: {views}
-    </div>
-  );
+  return <div className="mt-4 text-sm text-gray-600">Total Views: {views}</div>;
 };
 
 export default PageViewCounter;

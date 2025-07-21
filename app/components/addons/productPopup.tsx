@@ -1,8 +1,11 @@
-// app/components/addons/productPopup.tsx
+"use client";
 
-import { useState, useEffect, ChangeEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { products, Product as ProductType } from '@/app/data/products';
+import { useState, useEffect, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
+import { products, Product as ProductType } from "@/app/data/products";
+import { db } from "@/libs/firebase/config";
+import { doc, setDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 interface ProductPopupProps {
   productId: number;
@@ -10,20 +13,17 @@ interface ProductPopupProps {
 }
 
 function parsePrice(price: string): number {
-  const parts = price.split('-');
-  const value = parts[parts.length - 1].trim().replace(/[^\d]/g, '');
+  const parts = price.split("-");
+  const value = parts[parts.length - 1].trim().replace(/[^\d]/g, "");
   return parseInt(value, 10);
 }
 
-const cities = [
-  'Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi',
-  'Bandung', 'Surabaya', 'Medan', 'Semarang',
-];
+const cities = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi", "Bandung", "Surabaya", "Medan", "Semarang"];
 
 const shippingServices = [
-  { name: 'JNE', cost: 20000 },
-  { name: 'SiCepat', cost: 15000 },
-  { name: 'Grab Instant', cost: 26000 },
+  { name: "JNE", cost: 20000 },
+  { name: "SiCepat", cost: 15000 },
+  { name: "Grab Instant", cost: 26000 },
 ];
 
 export default function ProductPopup({ productId, onClose }: ProductPopupProps) {
@@ -31,8 +31,8 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
   const basePrice = product ? parsePrice(product.price) : 0;
 
   const [quantity, setQuantity] = useState<number>(1);
-  const [selectedShipping, setSelectedShipping] = useState<string>('JNE');
-  const [selectedCity, setSelectedCity] = useState<string>('Jakarta');
+  const [selectedShipping, setSelectedShipping] = useState<string>("JNE");
+  const [selectedCity, setSelectedCity] = useState<string>("Jakarta");
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const router = useRouter();
 
@@ -57,48 +57,81 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
   const handleCityChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const city = e.target.value;
     setSelectedCity(city);
-    const jabodetabek = ['Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi'];
-    if (!jabodetabek.includes(city) && selectedShipping === 'Grab Instant') {
-      setSelectedShipping('JNE');
+    const jabodetabek = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi"];
+    if (!jabodetabek.includes(city) && selectedShipping === "Grab Instant") {
+      setSelectedShipping("JNE");
     }
   };
 
   const handlePayment = async () => {
     const orderId = `order-${Date.now()}`;
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      alert("Silakan login terlebih dahulu untuk melakukan pembelian.");
+      return;
+    }
+
+    const userUid = currentUser.uid;
+    const username = currentUser.displayName || "Tanpa Nama";
+    const email = currentUser.email || "Tanpa Email";
+    const shippingCost = shippingServices.find((s) => s.name === selectedShipping)?.cost || 0;
+
     try {
-      const response = await fetch('/api/midtrans/charge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Buat transaksi Midtrans
+      const response = await fetch("/api/midtrans/charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ totalPrice, orderId }),
       });
 
       const data = await response.json();
-      if (response.ok && data.token) {
-        if (window.snap) {
-          window.snap.pay(data.token, {
-            onSuccess: (result) => {
-              console.log('Payment success:', result);
-              router.push('/');
-            },
-            onPending: (result) => {
-              console.log('Payment pending:', result);
-            },
-            onError: (result) => {
-              console.log('Payment error:', result);
-            },
-            onClose: () => {
-              console.log('Popup ditutup tanpa menyelesaikan pembayaran.');
-            },
-          });
-        } else {
-          alert('Snap JS belum dimuat.');
-        }
-      } else {
+      if (!response.ok || !data.token) {
         alert(`Gagal membuat transaksi: ${data.error}`);
+        return;
+      }
+
+      // Simpan order ke Firestore
+      await setDoc(doc(db, "orders", orderId), {
+        orderId,
+        userUid,
+        username,
+        email,
+        productId,
+        productTitle: product?.title || "",
+        quantity,
+        pricePerItem: basePrice,
+        totalPrice,
+        shipping: selectedShipping,
+        city: selectedCity,
+        createdAt: new Date(),
+        status: "pending",
+      });
+
+      // Tampilkan Snap
+      if (window.snap) {
+        window.snap.pay(data.token, {
+          onSuccess: (result) => {
+            console.log("Payment success:", result);
+            router.push("/");
+          },
+          onPending: (result) => {
+            console.log("Payment pending:", result);
+          },
+          onError: (result) => {
+            console.log("Payment error:", result);
+          },
+          onClose: () => {
+            console.log("Popup ditutup tanpa menyelesaikan pembayaran.");
+          },
+        });
+      } else {
+        alert("Snap JS belum dimuat.");
       }
     } catch (error) {
-      console.error('Error saat memproses pembayaran:', error);
-      alert('Terjadi kesalahan. Silahkan coba lagi.');
+      console.error("Error saat memproses pembayaran:", error);
+      alert("Terjadi kesalahan. Silakan coba lagi.");
     }
   };
 
@@ -119,7 +152,9 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="box p-6 rounded-lg w-full max-w-md bg-white">
         <div className="flex justify-end">
-          <button className="text-gray-500" onClick={onClose}>X</button>
+          <button className="text-gray-500" onClick={onClose}>
+            X
+          </button>
         </div>
 
         <h2 className="text-xl font-bold mb-2">{product.title}</h2>
@@ -127,29 +162,19 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
         <p className="mb-4">Harga per item: Rp{basePrice.toLocaleString()}</p>
 
         <div className="mb-4">
-          <label htmlFor="quantity" className="block mb-1">Quantity:</label>
-          <input
-            id="quantity"
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={handleQuantityChange}
-            className="border px-2 py-1 w-full"
-          />
+          <label htmlFor="quantity" className="block mb-1">
+            Quantity:
+          </label>
+          <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="border px-2 py-1 w-full" />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="shipping" className="block mb-1">Jasa Pengiriman:</label>
-          <select
-            id="shipping"
-            value={selectedShipping}
-            onChange={handleShippingChange}
-            className="border border-zinc-700 px-2 py-1 w-full box"
-          >
+          <label htmlFor="shipping" className="block mb-1">
+            Jasa Pengiriman:
+          </label>
+          <select id="shipping" value={selectedShipping} onChange={handleShippingChange} className="border border-zinc-700 px-2 py-1 w-full box">
             {shippingServices.map((service) => {
-              const isGrabDisabled =
-                service.name === 'Grab Instant' &&
-                !['Jakarta', 'Bogor', 'Depok', 'Tangerang', 'Bekasi'].includes(selectedCity);
+              const isGrabDisabled = service.name === "Grab Instant" && !["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi"].includes(selectedCity);
               return (
                 <option key={service.name} value={service.name} disabled={isGrabDisabled}>
                   {service.name} (Rp{service.cost.toLocaleString()}/kg)
@@ -160,15 +185,14 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
         </div>
 
         <div className="mb-4">
-          <label htmlFor="city" className="block mb-1">Kota Pengiriman:</label>
-          <select
-            id="city"
-            value={selectedCity}
-            onChange={handleCityChange}
-            className="border border-zinc-700 px-2 py-1 w-full box"
-          >
+          <label htmlFor="city" className="block mb-1">
+            Kota Pengiriman:
+          </label>
+          <select id="city" value={selectedCity} onChange={handleCityChange} className="border border-zinc-700 px-2 py-1 w-full box">
             {cities.map((city) => (
-              <option key={city} value={city}>{city}</option>
+              <option key={city} value={city}>
+                {city}
+              </option>
             ))}
           </select>
         </div>
@@ -177,10 +201,7 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
           <p className="font-bold">Total Harga: Rp{totalPrice.toLocaleString()}</p>
         </div>
 
-        <button
-          onClick={handlePayment}
-          className="w-full py-2 bg-red-800 text-white rounded"
-        >
+        <button onClick={handlePayment} className="w-full py-2 bg-red-800 text-white rounded">
           Bayar
         </button>
       </div>

@@ -1,17 +1,8 @@
 // app/components/CommentsSection.tsx
 "use client";
 import React, { useState, useEffect } from "react";
-import { db } from "../../src/lib/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  Timestamp
-} from "firebase/firestore";
+import { db } from "@/libs/firebase/config";
+import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
 
 interface Comment {
   id?: string;
@@ -42,15 +33,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
 
   // Ambil komentar dari Firestore untuk produk tertentu
   useEffect(() => {
-    const q = query(
-      collection(db, "comments"),
-      where("productSlug", "==", productSlug),
-      orderBy("timestamp", "desc")
-    );
+    const q = query(collection(db, "comments"), where("productSlug", "==", productSlug), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data: Comment[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as Comment[];
       setComments(data);
     });
@@ -67,7 +54,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
         username,
         email,
         comment: commentText,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       });
       setUsername("");
       setEmail("");
@@ -87,7 +74,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
         email: replyEmail,
         comment: replyText,
         timestamp: serverTimestamp(),
-        parentId: parentId
+        parentId: parentId,
       });
       setReplyUsername("");
       setReplyEmail("");
@@ -102,8 +89,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
   const mainComments = comments.filter((c) => !c.parentId);
 
   // Fungsi untuk mendapatkan reply untuk sebuah komentar
-  const getReplies = (parentId: string) =>
-    comments.filter((c) => c.parentId === parentId);
+  const getReplies = (parentId: string) => comments.filter((c) => c.parentId === parentId);
 
   return (
     <div className="mt-8">
@@ -116,51 +102,21 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
             <div key={c.id} className="border p-4 mb-4">
               <div className="flex justify-between items-center">
                 <div className="font-bold">{c.username}</div>
-                <div className="text-sm text-gray-500">
-                  {c.timestamp
-                    ? new Date(c.timestamp.seconds * 1000).toLocaleString()
-                    : "Just now"}
-                </div>
+                <div className="text-sm text-gray-500">{c.timestamp ? new Date(c.timestamp.seconds * 1000).toLocaleString() : "Just now"}</div>
               </div>
               <p className="mt-2">{c.comment}</p>
               {/* Tombol Reply untuk setiap komentar */}
-              <button
-                className="text-blue-500 mt-2"
-                onClick={() => setReplyingTo(c.id || null)}
-              >
+              <button className="text-blue-500 mt-2" onClick={() => setReplyingTo(c.id || null)}>
                 Reply
               </button>
 
               {/* Form Reply akan tampil jika komentar ini yang sedang di-reply */}
               {replyingTo === c.id && (
                 <div className="mt-4 ml-4">
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    value={replyUsername}
-                    onChange={(e) => setReplyUsername(e.target.value)}
-                    className="border p-2 mr-2 mb-2"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    value={replyEmail}
-                    onChange={(e) => setReplyEmail(e.target.value)}
-                    className="border p-2 mr-2 mb-2"
-                    required
-                  />
-                  <textarea
-                    placeholder="Your reply..."
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    className="border p-2 w-full mb-2"
-                    required
-                  ></textarea>
-                  <button
-                    onClick={() => c.id && handleReplySubmit(c.id)}
-                    className="bg-blue-500 text-white px-4 py-2"
-                  >
+                  <input type="text" placeholder="Your name" value={replyUsername} onChange={(e) => setReplyUsername(e.target.value)} className="border p-2 mr-2 mb-2" required />
+                  <input type="email" placeholder="Your email" value={replyEmail} onChange={(e) => setReplyEmail(e.target.value)} className="border p-2 mr-2 mb-2" required />
+                  <textarea placeholder="Your reply..." value={replyText} onChange={(e) => setReplyText(e.target.value)} className="border p-2 w-full mb-2" required></textarea>
+                  <button onClick={() => c.id && handleReplySubmit(c.id)} className="bg-blue-500 text-white px-4 py-2">
                     Submit Reply
                   </button>
                 </div>
@@ -171,49 +127,19 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
                 <div key={reply.id} className="mt-4 ml-8 border-l pl-4">
                   <div className="flex justify-between items-center">
                     <div className="font-bold">{reply.username}</div>
-                    <div className="text-sm text-gray-500">
-                      {reply.timestamp
-                        ? new Date(reply.timestamp.seconds * 1000).toLocaleString()
-                        : "Just now"}
-                    </div>
+                    <div className="text-sm text-gray-500">{reply.timestamp ? new Date(reply.timestamp.seconds * 1000).toLocaleString() : "Just now"}</div>
                   </div>
                   <p className="mt-2">{reply.comment}</p>
                   {/* Jika diinginkan, tombol reply juga bisa disediakan untuk reply di level selanjutnya */}
-                  <button
-                    className="text-blue-500 mt-2"
-                    onClick={() => setReplyingTo(reply.id || null)}
-                  >
+                  <button className="text-blue-500 mt-2" onClick={() => setReplyingTo(reply.id || null)}>
                     Reply
                   </button>
                   {replyingTo === reply.id && (
                     <div className="mt-4 ml-4">
-                      <input
-                        type="text"
-                        placeholder="Your name"
-                        value={replyUsername}
-                        onChange={(e) => setReplyUsername(e.target.value)}
-                        className="border p-2 mr-2 mb-2"
-                        required
-                      />
-                      <input
-                        type="email"
-                        placeholder="Your email"
-                        value={replyEmail}
-                        onChange={(e) => setReplyEmail(e.target.value)}
-                        className="border p-2 mr-2 mb-2"
-                        required
-                      />
-                      <textarea
-                        placeholder="Your reply..."
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        className="border p-2 w-full mb-2"
-                        required
-                      ></textarea>
-                      <button
-                        onClick={() => reply.id && handleReplySubmit(reply.id)}
-                        className="bg-blue-500 text-white px-4 py-2"
-                      >
+                      <input type="text" placeholder="Your name" value={replyUsername} onChange={(e) => setReplyUsername(e.target.value)} className="border p-2 mr-2 mb-2" required />
+                      <input type="email" placeholder="Your email" value={replyEmail} onChange={(e) => setReplyEmail(e.target.value)} className="border p-2 mr-2 mb-2" required />
+                      <textarea placeholder="Your reply..." value={replyText} onChange={(e) => setReplyText(e.target.value)} className="border p-2 w-full mb-2" required></textarea>
+                      <button onClick={() => reply.id && handleReplySubmit(reply.id)} className="bg-blue-500 text-white px-4 py-2">
                         Submit Reply
                       </button>
                     </div>
@@ -229,29 +155,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ productSlug }) => {
 
       {/* Form untuk mengirim komentar baru */}
       <form onSubmit={handleSubmit} className="mt-6">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 mr-2 mb-2"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 mr-2 mb-2"
-          required
-        />
-        <textarea
-          placeholder="Write your comment here..."
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          className="border p-2 w-full mb-2"
-          required
-        ></textarea>
+        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="border p-2 mr-2 mb-2" required />
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="border p-2 mr-2 mb-2" required />
+        <textarea placeholder="Write your comment here..." value={commentText} onChange={(e) => setCommentText(e.target.value)} className="border p-2 w-full mb-2" required></textarea>
         <button type="submit" className="bg-blue-500 text-white px-4 py-2">
           Submit Comment
         </button>
