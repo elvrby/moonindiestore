@@ -1,28 +1,28 @@
-// /app/api/midtrans/webhook.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+// app/api/midtrans/webhook/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/libs/firebase/config";
 import { doc, updateDoc } from "firebase/firestore";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).end("Method Not Allowed");
-  }
-
-  const notification = req.body;
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { order_id, transaction_status } = body;
 
   try {
-    const transactionStatus = notification.transaction_status; // 'settlement', 'pending', 'expire', etc.
-    const orderId = notification.order_id; // Pastikan orderId = order-123 di order kamu
+    if (!order_id || !transaction_status) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
 
-    // Update Firestore order status
-    await updateDoc(doc(db, "orders", orderId), {
-      status: transactionStatus,
+    const orderRef = doc(db, "orders", order_id);
+
+    // Update status di Firestore
+    await updateDoc(orderRef, {
+      status: transaction_status, // bisa: 'settlement', 'cancel', 'expire', etc
       updatedAt: new Date(),
     });
 
-    return res.status(200).json({ message: "Notification received and processed" });
-  } catch (error) {
-    console.error("Failed to process webhook", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return NextResponse.json({ message: "Order status updated" });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return NextResponse.json({ error: "Failed to update order status" }, { status: 500 });
   }
 }
