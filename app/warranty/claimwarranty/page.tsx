@@ -1,7 +1,7 @@
 "use client"; // Add this at the top of the file
 
 import React, { useState, useEffect } from "react";
-import { doc, setDoc, collection, updateDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, updateDoc, getDocs, query, where } from "firebase/firestore";
 import { firebaseFirestore } from "@/libs/firebase/config"; // Ensure this path matches your configuration
 import ClipLoader from "react-spinners/ClipLoader";
 import Link from "next/link";

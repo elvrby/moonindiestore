@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation"; // Import useRouter for redirection
 
 const MyWarranty: React.FC = () => {
   const [warrantyCode, setWarrantyCode] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warranty, setWarranty] = useState<any | null>(null);
+
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((authUser) => {

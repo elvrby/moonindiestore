@@ -76,7 +76,6 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
     const userUid = currentUser.uid;
     const username = currentUser.displayName || "Tanpa Nama";
     const email = currentUser.email || "Tanpa Email";
-    const shippingCost = shippingServices.find((s) => s.name === selectedShipping)?.cost || 0;
 
     try {
       // Buat transaksi Midtrans
