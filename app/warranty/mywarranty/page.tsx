@@ -66,6 +66,7 @@ const MyWarranty: React.FC = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePrint = (warranty: any) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
