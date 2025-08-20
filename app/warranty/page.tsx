@@ -1,5 +1,5 @@
 "use client";
-import IndexMain from "../home/warranty/indexMain";
+import IndexMain from "../components/layout/WarrantyCom";
 import React from "react";
 
 const Page: React.FC = () => {
