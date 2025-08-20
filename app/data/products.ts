@@ -76,4 +76,58 @@ export const products: Product[] = [
       ],
     },
   },
+  {
+    id: 2,
+    slug: "Aki-Motor-Heybatt-GTZ7S",
+    category: "Aki Motor",
+    title: "Aki Motor Heybatt GTZ7S",
+    subtitle: "Aki Motor Heybatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
+    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719511/Heybatt_GTZ7S_kjstje.jpg",
+    description: "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
+    price: "235.000 - 145.800",
+    beliSekarang: "beli", //ubah fungsi ini
+    downloadButtons: [
+      {
+        label: "Ranoz.gg",
+        title: "Download",
+        link: "https://ranoz.gg/file/yxzBQqbq",
+      },
+    ],
+    media: {
+      video: "none",
+      photos: [
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742392480/Image/App/MSOffice/mo5oxei5tqff93by4iiv.jpg",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393342/Image/App/MSOffice/jldac1br6bfnr7cw1rza.png",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393343/Image/App/MSOffice/wpxtatirltr5eucobo8q.jpg",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393444/Image/App/MSOffice/htyn3b60xalp3trbg3x7.jpg",
+      ],
+    },
+  },
+  {
+    id: 1,
+    slug: "Aki-Motor-Motobatt",
+    category: "Aki Motor",
+    title: "Aki Motor Motobatt",
+    subtitle: "Aki Motor Motobatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
+    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719512/Motobatt_GTZ5S_dpdb8y.jpg",
+    description: "Aki Motor Motobatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
+    price: "220.000 - 175.800",
+    beliSekarang: "beli", //ubah fungsi ini
+    downloadButtons: [
+      {
+        label: "Ranoz.gg",
+        title: "Download",
+        link: "https://ranoz.gg/file/yxzBQqbq",
+      },
+    ],
+    media: {
+      video: "none",
+      photos: [
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742392480/Image/App/MSOffice/mo5oxei5tqff93by4iiv.jpg",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393342/Image/App/MSOffice/jldac1br6bfnr7cw1rza.png",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393343/Image/App/MSOffice/wpxtatirltr5eucobo8q.jpg",
+        "https://res.cloudinary.com/dlv5ytn1a/image/upload/v1742393444/Image/App/MSOffice/htyn3b60xalp3trbg3x7.jpg",
+      ],
+    },
+  },
 ];

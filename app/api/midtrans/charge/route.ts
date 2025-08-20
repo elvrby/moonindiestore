@@ -1,40 +1,35 @@
-// app/api/transaction/route.ts
+// app/api/midtrans/charge/route.ts
 import { NextResponse } from "next/server";
-import MidtransClient from "midtrans-client";
 
 export async function POST(req: Request) {
   try {
     const { totalPrice, orderId } = await req.json();
+    const serverKey = process.env.MIDTRANS_SERVER_KEY!;
+    const basic = Buffer.from(serverKey + ":").toString("base64");
 
-    if (!totalPrice || !orderId) {
-      return NextResponse.json({ error: "totalPrice dan orderId harus disertakan" }, { status: 400 });
-    }
-
-    const snap = new MidtransClient.Snap({
-      isProduction: false,
-      serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+    const res = await fetch("https://app.sandbox.midtrans.com/snap/v1/transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${basic}`,
+      },
+      body: JSON.stringify({
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: Number(totalPrice),
+        },
+        credit_card: { secure: true },
+      }),
     });
 
-    const parameter = {
-      transaction_details: {
-        order_id: orderId,
-        gross_amount: totalPrice,
-      },
-      customer_details: {
-        first_name: "User",
-        email: "user@example.com", // optional
-      },
-    };
-
-    const transaction = await snap.createTransaction(parameter);
-
-    return NextResponse.json({ token: transaction.token });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Midtrans error:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    const data = await res.json();
+    if (!res.ok || !data?.token) {
+      return NextResponse.json({ error: data?.status_message || "Failed to create transaction" }, { status: res.status || 500 });
     }
 
-    return NextResponse.json({ error: "Gagal membuat transaksi" }, { status: 500 });
+    // Kirim hanya token; abaikan redirect_url dari Midtrans
+    return NextResponse.json({ token: data.token });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || "Unexpected error" }, { status: 500 });
   }
 }
