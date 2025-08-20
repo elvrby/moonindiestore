@@ -56,6 +56,7 @@ const HeaderComponent: React.FC = () => {
         <nav className="hidden md:flex space-x-8 items-center">
           <Link href="/">Home</Link>
           <Link href="/products">Products</Link>
+          <Link href="/warranty">Garansi</Link>
           <Link href="/contact">Contact</Link>
 
           {userUid ? (
