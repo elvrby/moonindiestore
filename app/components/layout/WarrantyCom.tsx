@@ -384,8 +384,8 @@ const IndexMain: React.FC = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <Image src="/Images/Akimania-Icon.png" width={500} height={500} objectFit="cover" alt="car"></Image>
                 </div>
                 <span className="text-xl font-bold text-gray-900">Akimania</span>
               </div>
@@ -449,7 +449,7 @@ const IndexMain: React.FC = () => {
 
           <div className="border-t border-gray-200 mt-8 pt-8 text-center">
             <p className="text-gray-600">
-              © 2024 <span className="font-semibold">Akimania™</span>. All Rights Reserved.
+              © 2025 <span className="font-semibold">Akimania™</span>. All Rights Reserved.
             </p>
           </div>
         </div>
