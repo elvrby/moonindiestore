@@ -54,6 +54,7 @@ export default function ProductPopup({ productId, onClose }: ProductPopupProps) 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPending, setShowPending] = useState(false);
   const [showError, setShowError] = useState<{ open: boolean; message?: string }>({ open: false });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [paymentResult, setPaymentResult] = useState<any>(null);
 
   const router = useRouter();

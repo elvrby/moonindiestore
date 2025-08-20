@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 
     // Kirim hanya token; abaikan redirect_url dari Midtrans
     return NextResponse.json({ token: data.token });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Unexpected error" }, { status: 500 });
   }

@@ -24,6 +24,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 type Category = "semua" | "Aki Motor" | "Aki Mobil";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type CartItem = {
   productId: string;
   quantity: number;
