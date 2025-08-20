@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { collection, updateDoc, getDocs, query, where } from "firebase/firestore";
 import { firebaseFirestore } from "@/libs/firebase/config";
-import ClipLoader from "react-spinners/ClipLoader";
 import Link from "next/link";
 
 const ClaimWarranty: React.FC = () => {
@@ -188,6 +187,13 @@ const ClaimWarranty: React.FC = () => {
       {/* Main Content */}
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50">
+          <div className=" w-12 h-12 flex items-center justify-center relative">
+            <Link href="/warranty" className="flex items-center justify-center">
+              <svg height="28px" width="28px" id="Layer_1" version="1.1" viewBox="0 0 512 512">
+                <path d="M189.3,128.4L89,233.4c-6,5.8-9,13.7-9,22.4c0,8.7,3,16.5,9,22.4l100.3,105.4c11.9,12.5,31.3,12.5,43.2,0  c11.9-12.5,11.9-32.7,0-45.2L184.4,288h217c16.9,0,30.6-14.3,30.6-32c0-17.7-13.7-32-30.6-32h-217l48.2-50.4  c11.9-12.5,11.9-32.7,0-45.2C220.6,115.9,201.3,115.9,189.3,128.4z" />
+              </svg>
+            </Link>
+          </div>
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">

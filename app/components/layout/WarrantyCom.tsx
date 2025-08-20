@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import React, { useState } from "react";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -223,21 +224,21 @@ const IndexMain: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <Image src="/Images/Akimania-Icon.png" width={500} height={500} objectFit="cover" alt="car"></Image>
               </div>
               <span className="text-xl font-bold text-gray-900">Akimania</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="/" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-purple-600 transition-colors">
                 Home
-              </a>
-              <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
+              </Link>
+              <Link href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
                 Support
-              </a>
-              <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
+              </Link>
+              <Link href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
                 Contact
-              </a>
+              </Link>
             </div>
           </div>
         </div>
