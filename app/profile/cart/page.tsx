@@ -9,12 +9,19 @@ import { useRouter } from "next/navigation";
 import { useUserSession } from "@/hooks/use-user-session";
 import { getAuth } from "firebase/auth";
 import { db } from "@/libs/firebase/config";
-import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 
 import { removeManyFromCart } from "@/libs/firebase/auth";
 import { products, type Product } from "@/app/data/products";
 import HeaderComponent from "@/app/components/layout/header";
 
+// Komponen & tipe alamat
+import AddressMenu from "../../components/addons/addressmenu";
+import type { ShippingAddress } from "../../data/locations";
+
+/* ============================
+ * Types & Utils
+ * ============================ */
 type CartItem = { productId: string; quantity: number };
 
 // Snap type (tanpa declare global)
@@ -33,15 +40,16 @@ const parsePrice = (price: string): number => {
   return parseInt(value, 10);
 };
 
-const cities = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi", "Bandung", "Surabaya", "Medan", "Semarang"];
-
 /** Tarif jasa pengiriman dalam Rp per KG */
 const shippingServices = [
   { name: "JNE", cost: 20000, icon: "🚚" },
-  { name: "SiCepat", cost: 2500, icon: "⚡" }, // ⬅️ 2.500 per kg
+  { name: "SiCepat", cost: 2500, icon: "⚡" }, // 2.500 per kg
   { name: "Grab Instant", cost: 26000, icon: "🏍️" }, // hanya Jabodetabek
 ];
 
+/* ============================
+ * UI: Confirm Delete Modal
+ * ============================ */
 function ConfirmModal({ open, title, onConfirm, onCancel }: { open: boolean; title?: string; onConfirm: () => void; onCancel: () => void }) {
   if (!open) return null;
   return (
@@ -64,41 +72,48 @@ function ConfirmModal({ open, title, onConfirm, onCancel }: { open: boolean; tit
   );
 }
 
-/** Modal Checkout: hitung subtotal, berat, ongkir berbasis berat (Rp/kg) */
+/* ============================
+ * UI: Checkout Modal
+ * ============================ */
 function CheckoutModal({
   open,
   items,
   productById,
   onClose,
   onConfirmPay,
+  shippingAddress,
+  onEditAddress,
 }: {
   open: boolean;
   items: CartItem[];
   productById: Map<string, Product>;
   onClose: () => void;
   onConfirmPay: (payload: { city: string; shipping: string; quantities: Record<string, number>; totalPrice: number; selectedIds: string[] }) => void;
+  shippingAddress: ShippingAddress | null;
+  onEditAddress: () => void;
 }) {
-  const [selectedCity, setSelectedCity] = useState<string>("Jakarta");
   const [selectedShipping, setSelectedShipping] = useState<string>("JNE");
   const [qtyMap, setQtyMap] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const cityFromAddress = shippingAddress?.city ?? "";
 
   useEffect(() => {
     if (!open) return;
     const init: Record<string, number> = {};
     for (const it of items) init[it.productId] = it.quantity;
     setQtyMap(init);
-    setSelectedCity("Jakarta");
     setSelectedShipping("JNE");
     setIsLoading(false);
   }, [open, items]);
 
+  // Bila bukan Jabodetabek, matikan Grab Instant
   useEffect(() => {
-    const jabodetabek = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi"];
-    if (!jabodetabek.includes(selectedCity) && selectedShipping === "Grab Instant") {
+    const isJabodetabek = /Jakarta/i.test(cityFromAddress) || ["Bogor", "Depok", "Tangerang", "Bekasi"].some((k) => cityFromAddress.toLowerCase().includes(k.toLowerCase()));
+    if (!isJabodetabek && selectedShipping === "Grab Instant") {
       setSelectedShipping("JNE");
     }
-  }, [selectedCity, selectedShipping]);
+  }, [cityFromAddress, selectedShipping]);
 
   const increase = (pid: string) => setQtyMap((prev) => ({ ...prev, [pid]: Math.max(1, (prev[pid] || 1) + 1) }));
   const decrease = (pid: string) => setQtyMap((prev) => ({ ...prev, [pid]: Math.max(1, (prev[pid] || 1) - 1) }));
@@ -125,7 +140,7 @@ function CheckoutModal({
     return items.reduce((acc, it) => {
       const p = productById.get(it.productId);
       const qty = qtyMap[it.productId] ?? it.quantity;
-      const berat = p?.beratGram ?? 0;
+      const berat = (p as any)?.beratGram ?? 0;
       return acc + berat * qty;
     }, 0);
   }, [items, qtyMap, productById]);
@@ -134,7 +149,7 @@ function CheckoutModal({
 
   /**
    * Berat yang ditagihkan:
-   * - < 2 kg => 1 kg (sesuai contoh)
+   * - < 2 kg => 1 kg
    * - >= 2 kg => ceil(total kg)
    * - 0 kg => 0
    */
@@ -144,22 +159,25 @@ function CheckoutModal({
     return kg < 2 ? 1 : Math.ceil(kg);
   }, [totalWeightKg]);
 
-  /** Ongkir berbasis berat ditagih */
   const shippingCost = useMemo(() => shippingUnitCost * billedWeightKg, [shippingUnitCost, billedWeightKg]);
 
-  /** Total harga keseluruhan */
-  const grandTotal = useMemo(() => productsCost + shippingCost, [productsCost, shippingCost]);
+  /** Biaya admin 2% */
+  const adminFee = useMemo(() => Math.round((productsCost + shippingCost) * 0.02), [productsCost, shippingCost]);
+
+  /** Total harga keseluruhan (produk + ongkir + admin) */
+  const grandTotal = useMemo(() => productsCost + shippingCost + adminFee, [productsCost, shippingCost, adminFee]);
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-slideUp max-h-[95vh] overflow-y-auto">
+        {/* Header */}
         <div className="bg-gradient-to-r from-black to-gray-800 p-5 text-white relative">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-xl font-bold">Checkout</h2>
-              <p className="text-gray-300 text-sm mt-1">Atur pengiriman & kuantitas sebelum bayar</p>
+              <p className="text-gray-300 text-sm mt-1">Alamat & ringkasan pesanan</p>
             </div>
             <button onClick={onClose} className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
               <span className="text-xl">×</span>
@@ -167,7 +185,33 @@ function CheckoutModal({
           </div>
         </div>
 
-        <div className="p-5 space-y-5">
+        {/* Body */}
+        <div className="p-5 space-y-5 text-black">
+          {/* Alamat Penerima */}
+          <div className="border border-gray-200 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-gray-800">Alamat Penerima</h3>
+              <button onClick={onEditAddress} className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">
+                {shippingAddress ? "Edit" : "Tambah"}
+              </button>
+            </div>
+            {shippingAddress ? (
+              <div className="text-sm text-gray-700 space-y-1">
+                <div className="font-medium">
+                  {shippingAddress.name} — {shippingAddress.phone}
+                </div>
+                <div>{shippingAddress.addressLine}</div>
+                <div>
+                  {shippingAddress.kelurahan}, {shippingAddress.kecamatan}, {shippingAddress.city} {shippingAddress.postalCode}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">
+                Belum ada alamat. Klik <b>Tambah</b> untuk mengisi data penerima.
+              </div>
+            )}
+          </div>
+
           {/* Items */}
           <div className="space-y-3">
             {items.map((it) => {
@@ -183,9 +227,9 @@ function CheckoutModal({
                     <h4 className="font-semibold text-gray-900 truncate">{p.title}</h4>
                     <p className="text-xs text-gray-500 mt-0.5">{p.category}</p>
                     <div className="mt-1 text-sm text-gray-700">Rp{unit.toLocaleString("id-ID")} / item</div>
-                    {typeof p.beratGram === "number" && (
+                    {typeof (p as any).beratGram === "number" && (
                       <div className="text-xs text-gray-500 mt-0.5">
-                        Berat: {(p.beratGram / 1000).toFixed(2)} kg × {qty}
+                        Berat: {(((p as any).beratGram ?? 0) / 1000).toFixed(2)} kg × {qty}
                       </div>
                     )}
                   </div>
@@ -214,29 +258,14 @@ function CheckoutModal({
                 className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-800 font-medium hover:border-gray-400 focus:border-black outline-none transition text-sm"
               >
                 {shippingServices.map((svc) => {
-                  const jabodetabek = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi"];
-                  const disabled = svc.name === "Grab Instant" && !jabodetabek.includes(selectedCity);
+                  const isJabodetabek = /Jakarta/i.test(cityFromAddress) || ["Bogor", "Depok", "Tangerang", "Bekasi"].some((k) => cityFromAddress.toLowerCase().includes(k.toLowerCase()));
+                  const disabled = svc.name === "Grab Instant" && !isJabodetabek;
                   return (
                     <option key={svc.name} value={svc.name} disabled={disabled}>
                       {svc.icon} {svc.name} - Rp{svc.cost.toLocaleString("id-ID")}/kg
                     </option>
                   );
                 })}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Kota Tujuan</label>
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full bg-gray-50 border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-800 font-medium hover:border-gray-400 focus:border-black outline-none transition text-sm"
-              >
-                {cities.map((c) => (
-                  <option key={c} value={c}>
-                    📍 {c}
-                  </option>
-                ))}
               </select>
             </div>
           </div>
@@ -250,6 +279,12 @@ function CheckoutModal({
             </div>
 
             <div className="flex justify-between text-xs text-gray-500">
+              <span>Tujuan</span>
+              <span>{shippingAddress ? `${shippingAddress.kelurahan}, ${shippingAddress.kecamatan}, ${shippingAddress.city} ${shippingAddress.postalCode}` : "-"}</span>
+            </div>
+
+            {/* Berat & ongkir */}
+            <div className="flex justify-between text-xs text-gray-500">
               <span>Berat total</span>
               <span>
                 {totalWeightKg.toFixed(2)} kg {billedWeightKg > 0 && <>(ditagih {billedWeightKg} kg)</>}
@@ -261,6 +296,11 @@ function CheckoutModal({
                 Pengiriman ({selectedShipping}) × {billedWeightKg} kg
               </span>
               <span className="font-medium">Rp{shippingCost.toLocaleString("id-ID")}</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Biaya Admin (2%)</span>
+              <span className="font-medium">Rp{adminFee.toLocaleString("id-ID")}</span>
             </div>
 
             <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
@@ -277,12 +317,16 @@ function CheckoutModal({
             <button
               onClick={() => {
                 if (isLoading) return;
+                if (!shippingAddress) {
+                  alert("Lengkapi alamat penerima terlebih dahulu.");
+                  return;
+                }
                 setIsLoading(true);
                 onConfirmPay({
-                  city: selectedCity,
+                  city: cityFromAddress || "-",
                   shipping: selectedShipping,
                   quantities: qtyMap,
-                  totalPrice: grandTotal, // ⬅️ gunakan total baru
+                  totalPrice: grandTotal, // termasuk admin fee
                   selectedIds: items.map((i) => i.productId),
                 });
                 setTimeout(() => setIsLoading(false), 400);
@@ -298,6 +342,9 @@ function CheckoutModal({
   );
 }
 
+/* ============================
+ * Page: Cart
+ * ============================ */
 const CartPage: React.FC = () => {
   const router = useRouter();
   const rawUid = useUserSession(null);
@@ -318,11 +365,17 @@ const CartPage: React.FC = () => {
   const [paymentResult, setPaymentResult] = useState<any>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
 
+  const [address, setAddress] = useState<ShippingAddress | null>(null);
+  const [openAddressModal, setOpenAddressModal] = useState(false);
+
   const productById = useMemo(() => {
     const map = new Map<string, Product>();
     for (const p of products) map.set(String(p.id), p);
     return map;
   }, []);
+
+  // helper: apakah alamat benar2 ada
+  const hasAddress = !!(address && address.city && address.kecamatan && address.kelurahan && address.postalCode);
 
   // load Snap sekali
   useEffect(() => {
@@ -337,11 +390,12 @@ const CartPage: React.FC = () => {
     document.body.appendChild(script);
   }, []);
 
-  // realtime cart
+  // realtime cart + alamat
   useEffect(() => {
     if (!userUid) {
       setCart([]);
       setSelected(new Set());
+      setAddress(null);
       setLoading(false);
       return;
     }
@@ -350,19 +404,37 @@ const CartPage: React.FC = () => {
     const unsub = onSnapshot(
       ref,
       (snap) => {
-        const data = snap.data() as { cart?: CartItem[] } | undefined;
+        const data = snap.data() as { cart?: CartItem[]; shippingAddress?: ShippingAddress | null } | undefined;
         const items = Array.isArray(data?.cart) ? data!.cart! : [];
         const normalized = items.map((it) => ({
           productId: String(it.productId),
           quantity: Math.max(1, Number(it.quantity) || 1),
         }));
         setCart(normalized);
-        setSelected((prev) => new Set([...prev].filter((id) => normalized.some((i) => i.productId === id)))); // keep only existing ids
+        setSelected((prev) => new Set([...prev].filter((id) => normalized.some((i) => i.productId === id))));
+        setAddress(data?.shippingAddress ?? null);
         setLoading(false);
       },
       () => setLoading(false)
     );
     return () => unsub();
+  }, [userUid]);
+
+  // fetch alamat awal sekali (fallback) — JANGAN set emptyAddress, biarkan null
+  useEffect(() => {
+    const run = async () => {
+      if (!userUid) return;
+      try {
+        const ref = doc(db, "users", userUid);
+        const snap = await getDoc(ref);
+        const data = snap.data() as any;
+        if (data?.shippingAddress) setAddress(data.shippingAddress as ShippingAddress);
+        else setAddress(null);
+      } catch {
+        // ignore
+      }
+    };
+    run();
   }, [userUid]);
 
   const toggleSelect = (pid: string) =>
@@ -374,8 +446,6 @@ const CartPage: React.FC = () => {
     });
 
   const allIds = useMemo(() => cart.map((c) => c.productId), [cart]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const allSelected = selected.size > 0 && selected.size === allIds.length;
   const toggleSelectAll = () => setSelected((prev) => (prev.size === allIds.length ? new Set() : new Set(allIds)));
 
   const selectedItems = useMemo(() => cart.filter((c) => selected.has(c.productId)), [cart, selected]);
@@ -422,6 +492,11 @@ const CartPage: React.FC = () => {
         return;
       }
 
+      if (!hasAddress) {
+        setShowError({ open: true, message: "Alamat penerima belum diisi. Silakan isi alamat penerima." });
+        return;
+      }
+
       const uid = currentUser.uid;
       const username = currentUser.displayName || "Tanpa Nama";
       const email = currentUser.email || "Tanpa Email";
@@ -429,7 +504,7 @@ const CartPage: React.FC = () => {
       const newOrderId = `order-${Date.now()}`;
       setOrderId(newOrderId);
 
-      // minta token (tanpa redirect url)
+      // minta token
       const resp = await fetch("/api/midtrans/charge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -451,6 +526,7 @@ const CartPage: React.FC = () => {
         };
       });
 
+      // simpan order awal (sertakan alamat penerima)
       await setDoc(doc(db, "orders", newOrderId), {
         orderId: newOrderId,
         userUid: uid,
@@ -460,6 +536,7 @@ const CartPage: React.FC = () => {
         totalPrice,
         shipping,
         city,
+        shippingAddress: { ...address! },
         createdAt: new Date(),
         status: "created",
       });
@@ -483,11 +560,8 @@ const CartPage: React.FC = () => {
               midtrans: result,
             });
             await removeManyFromCart(uid, selectedIds);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            setSelected((_) => new Set());
-          } catch {
-            // ignore
-          }
+            setSelected(new Set());
+          } catch {}
           setShowSuccess(true);
         },
         onPending: async (result) => {
@@ -517,6 +591,7 @@ const CartPage: React.FC = () => {
     }
   };
 
+  // LOGIN GUARD — gaya sama seperti halaman Favorites
   if (!userUid) {
     return (
       <main className="min-h-screen px-4 py-12 text-white">
@@ -533,7 +608,7 @@ const CartPage: React.FC = () => {
 
   return (
     <main className="min-h-screen px-4 py-10 text-white">
-      <HeaderComponent></HeaderComponent>
+      <HeaderComponent />
       <div className="max-w-7xl mx-auto">
         <header className="mb-6 flex items-center justify-between gap-3">
           <div>
@@ -555,6 +630,31 @@ const CartPage: React.FC = () => {
           </div>
         </header>
 
+        {/* Alamat Penerima ringkas di halaman cart */}
+        <section className="mb-6">
+          <div className="rounded-2xl border border-gray-800/50 bg-gray-900/40 p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Alamat Penerima</h3>
+              <button onClick={() => setOpenAddressModal(true)} className="text-sm px-3 py-1.5 rounded-lg border border-white/20 hover:bg-white/10">
+                {hasAddress ? "Edit Alamat" : "Tambah Alamat"}
+              </button>
+            </div>
+            {hasAddress ? (
+              <div className="mt-3 text-sm text-gray-300 space-y-1">
+                <div className="font-medium">
+                  {address!.name} — {address!.phone}
+                </div>
+                <div>{address!.addressLine}</div>
+                <div>
+                  {address!.kelurahan}, {address!.kecamatan}, {address!.city} {address!.postalCode}
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-gray-400">Belum ada alamat tersimpan. Klik “Tambah Alamat”.</p>
+            )}
+          </div>
+        </section>
+
         {loading ? (
           <ul className="space-y-4">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -571,12 +671,7 @@ const CartPage: React.FC = () => {
           </ul>
         ) : cart.length === 0 ? (
           <div className="text-center py-24">
-            <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">belum ada product di cart</h3>
+            <h3 className="text-xl font-semibold text-gray-300 mb-2">Belum ada produk di cart</h3>
             <p className="text-gray-500">Yuk telusuri produk dan tambahkan ke cart kamu!</p>
             <Link href="/products" className="inline-block mt-6 bg-red-600 hover:bg-red-700 transition-colors px-5 py-2 rounded-xl font-semibold">
               Lihat Produk
@@ -640,9 +735,21 @@ const CartPage: React.FC = () => {
         )}
       </div>
 
+      {/* Modals */}
       <ConfirmModal open={!!confirmPid} title={confirmPid ? productById.get(confirmPid)?.title : undefined} onConfirm={handleConfirmRemove} onCancel={() => setConfirmPid(null)} />
 
-      <CheckoutModal open={showCheckout} items={selectedItems} productById={productById} onClose={() => setShowCheckout(false)} onConfirmPay={handleConfirmPay} />
+      <CheckoutModal
+        open={showCheckout}
+        items={selectedItems}
+        productById={productById}
+        onClose={() => setShowCheckout(false)}
+        onConfirmPay={handleConfirmPay}
+        shippingAddress={hasAddress ? address : null}
+        onEditAddress={() => setOpenAddressModal(true)}
+      />
+
+      {/* Address Menu (komponen terpisah) */}
+      <AddressMenu open={openAddressModal} initial={hasAddress ? address : null} userUid={userUid} onClose={() => setOpenAddressModal(false)} onSaved={(addr) => setAddress(addr)} />
 
       {/* Success / Pending / Error Modals */}
       {showSuccess && (
