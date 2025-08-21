@@ -115,21 +115,22 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[92] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-slideUp">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-black to-gray-800 p-5 text-white relative">
-          <div className="flex items-start justify-between">
-            <h2 className="text-xl font-bold">Alamat Penerima</h2>
-            <button onClick={onClose} className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition">
+    <div className="fixed inset-0 z-[92] flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4">
+      {/* Container modal: fullscreen di mobile, card di sm+ */}
+      <div className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-2xl shadow-2xl overflow-hidden animate-slideUp flex flex-col">
+        {/* Header (sticky di mobile) */}
+        <div className="bg-gradient-to-r from-black to-gray-800 p-4 sm:p-5 text-white relative sticky top-0 z-10">
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="text-lg sm:text-xl font-bold">Alamat Penerima</h2>
+            <button onClick={onClose} className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition shrink-0" aria-label="Tutup">
               <span className="text-xl">×</span>
             </button>
           </div>
-          <p className="text-gray-300 text-sm mt-1">Pilih Kota → Kecamatan → Kelurahan. Kode pos otomatis.</p>
+          <p className="text-gray-300 text-xs sm:text-sm mt-1">Pilih Kota → Kecamatan → Kelurahan. Kode pos otomatis.</p>
         </div>
 
-        {/* Body */}
-        <div className="p-5 space-y-4 text-black">
+        {/* Body (scrollable) */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-black">
           {error && <div className="p-3 rounded-xl bg-red-50 text-red-700 text-sm">{error}</div>}
 
           {/* nama / telp */}
@@ -138,6 +139,8 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
               <label className="block text-sm font-semibold text-gray-700 mb-1">Nama Pembeli</label>
               <input
                 type="text"
+                inputMode="text"
+                autoComplete="name"
                 value={form.name}
                 onChange={(e) => onChange("name", e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-black"
@@ -147,6 +150,8 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
               <label className="block text-sm font-semibold text-gray-700 mb-1">Nomor Telepon</label>
               <input
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={form.phone}
                 onChange={(e) => onChange("phone", e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-black"
@@ -160,7 +165,7 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
             <textarea
               value={form.addressLine}
               onChange={(e) => onChange("addressLine", e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-black min-h-[80px]"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-black min-h-[84px]"
             />
           </div>
 
@@ -227,21 +232,29 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
               <p className="text-xs text-gray-500 mt-1">Otomatis dari kelurahan</p>
             </div>
           </div>
+        </div>
 
-          {/* actions */}
-          <div className="flex justify-between items-center pt-4">
+        {/* Footer actions (sticky di mobile) */}
+        <div className="p-4 sm:p-5 border-t bg-white sticky bottom-0 z-10">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between sm:items-center">
             <button
               onClick={() => setConfirmOpen(true)}
               disabled={saving || !initial}
-              className={`px-4 py-2 rounded-xl font-semibold border ${saving || !initial ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-red-600 border-red-600 hover:bg-red-50"}`}
+              className={`w-full sm:w-auto px-4 py-2 rounded-xl font-semibold border ${
+                saving || !initial ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-red-600 border-red-600 hover:bg-red-50"
+              }`}
             >
               Hapus
             </button>
             <div className="flex gap-3">
-              <button onClick={onClose} className="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium">
+              <button onClick={onClose} className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium text-black">
                 Batal
               </button>
-              <button onClick={save} disabled={saving} className={`px-4 py-2 rounded-xl font-semibold text-white ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"}`}>
+              <button
+                onClick={save}
+                disabled={saving}
+                className={`w-full sm:w-auto px-4 py-2 rounded-xl font-semibold text-white ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"}`}
+              >
                 {saving ? "Menyimpan..." : "Save"}
               </button>
             </div>
@@ -251,15 +264,23 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
 
       {/* Modal konfirmasi hapus */}
       {confirmOpen && (
-        <div className="fixed inset-0 z-[93] flex items-center justify-center bg-black/70 p-4 animate-fadeIn">
-          <div className="w-full max-w-sm rounded-2xl bg-white text-black shadow-2xl overflow-hidden animate-scaleIn">
-            <div className="p-5">
+        <div className="fixed inset-0 z-[93] flex items-center justify-center bg-black/70 p-0 sm:p-4 animate-fadeIn">
+          <div className="w-full h-[100dvh] sm:h-auto sm:max-w-sm bg-white text-black shadow-2xl overflow-hidden animate-scaleIn rounded-none sm:rounded-2xl flex flex-col">
+            {/* Header konfirmasi (sticky di mobile) */}
+            <div className="p-4 sm:p-5 border-b">
+              <h3 className="text-lg sm:text-xl font-bold text-center">Hapus Alamat?</h3>
+            </div>
+
+            <div className="p-5 flex-1 flex flex-col items-center justify-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                 <span className="text-3xl">⚠️</span>
               </div>
-              <h3 className="text-xl font-bold text-center">Hapus Alamat?</h3>
-              <p className="mt-2 text-center text-gray-600">Apakah Anda yakin ingin menghapus alamat ini? Tindakan ini tidak bisa dibatalkan.</p>
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <p className="mt-1 text-center text-gray-600">Apakah Anda yakin ingin menghapus alamat ini? Tindakan ini tidak bisa dibatalkan.</p>
+            </div>
+
+            {/* Footer konfirmasi (sticky di mobile) */}
+            <div className="p-4 sm:p-5 border-t bg-white">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button onClick={() => setConfirmOpen(false)} className="w-full py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium">
                   Batal
                 </button>
