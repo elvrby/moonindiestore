@@ -1,6 +1,8 @@
 // app/cart/page.tsx
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -228,9 +230,7 @@ function CheckoutModal({
                     <h4 className="font-semibold text-gray-900 truncate">{p.title}</h4>
                     <p className="text-xs text-gray-500 mt-0.5">{p.category}</p>
                     <div className="mt-1 text-sm text-gray-700">Rp{unit.toLocaleString("id-ID")} / item</div>
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    {typeof (p as any).beratGram === "number" && (
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    {typeof (p as any).beratGram === "number" && ( // eslint-disable-line @typescript-eslint/no-explicit-any
                       <div className="text-xs text-gray-500 mt-0.5">
                         Berat: {(((p as any).beratGram ?? 0) / 1000).toFixed(2)} kg × {qty}
                       </div>
