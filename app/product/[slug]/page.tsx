@@ -6,8 +6,20 @@ import SidebarComponent from "@/app/sidebar";
 import MobileComponent from "@/app/components/addons/mobileheader";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
+
+// Tipe tombol unduhan
+type DownloadButton = {
+  label: string;
+  title: string;
+  link: string;
+};
+
+// Memperluas tipe Product agar mendukung downloadButtons (opsional)
+type ProductWithDownloads = Product & {
+  downloadButtons?: DownloadButton[];
+};
 
 // Fungsi untuk mengonversi URL YouTube ke URL embed
 function convertYoutubeUrl(url: string): string {
@@ -28,23 +40,20 @@ function convertYoutubeUrl(url: string): string {
     console.warn("Invalid YouTube URL:", url, error);
     return url;
   }
-  
 }
 
-export default async function ProductPage({ params }: PageProps) {
-  // Unwrap params menggunakan await
-  const { slug } = await params;
-  const product: Product | undefined = products.find((p) => p.slug === slug);
+export default function ProductPage({ params }: PageProps) {
+  const { slug } = params;
+
+  // Cari product dan treat sebagai ProductWithDownloads agar TS tahu ada downloadButtons (opsional)
+  const product: ProductWithDownloads | undefined = (products as ProductWithDownloads[]).find((p) => p.slug === slug);
 
   if (!product) {
     return <div className="text-center mt-10">Product not found</div>;
   }
 
   // Filter downloadButtons yang memiliki link valid (tidak "none")
-  const validDownloadButtons =
-    product.downloadButtons?.filter(
-      (btn) => btn.link && btn.link.toLowerCase() !== "none"
-    ) || [];
+  const validDownloadButtons: DownloadButton[] = product.downloadButtons?.filter((btn: DownloadButton) => btn.link && btn.link.toLowerCase() !== "none") ?? [];
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -53,61 +62,52 @@ export default async function ProductPage({ params }: PageProps) {
         <SidebarComponent />
       </div>
 
-      <div className="">
-        <MobileComponent/>
+      {/* Mobile header/component (jika memang diinginkan di bagian atas untuk mobile) */}
+      <div className="md:hidden">
+        <MobileComponent />
       </div>
 
       {/* Media: tampil di atas pada mobile (order-1) dan di kanan pada desktop (order-3) */}
       <div className="order-1 w-full p-5 md:order-3 md:w-2/5">
         <div className="space-y-4">
           {/* Video */}
-          {product.media &&
-            product.media.video &&
-            product.media.video.toLowerCase() !== "none" && (
-              <div className="w-full h-96 mb-4">
-                {product.media.video.includes("youtube") ||
-                product.media.video.includes("youtu.be") ? (
-                  <iframe
-                    src={convertYoutubeUrl(product.media.video)}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full object-cover rounded-lg"
-                  ></iframe>
-                ) : (
-                  <video
-                    src={product.media.video}
-                    controls
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                )}
-              </div>
-            )}
+          {product.media && product.media.video && product.media.video.toLowerCase() !== "none" && (
+            <div className="w-full h-96 mb-4">
+              {product.media.video.includes("youtube") || product.media.video.includes("youtu.be") ? (
+                <iframe
+                  src={convertYoutubeUrl(product.media.video)}
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <video src={product.media.video} controls className="w-full h-full object-cover rounded-lg" />
+              )}
+            </div>
+          )}
 
           {/* Grid Foto */}
-          {product.media &&
-            product.media.photos &&
-            product.media.photos.length > 0 && (
-              <div className="grid grid-cols-2 gap-4">
-                {product.media.photos.map(
-                  (photo, idx) =>
-                    photo.toLowerCase() !== "none" && (
-                      <div key={idx} className="relative w-full h-40">
-                        <Image
-                          src={photo}
-                          alt={`${product.title} photo ${idx + 1}`}
-                          fill
-                          style={{
-                            objectFit: "cover",
-                            objectPosition: "center",
-                          }}
-                          className="rounded-lg"
-                        />
-                      </div>
-                    )
-                )}
-              </div>
-            )}
+          {product.media && product.media.photos && product.media.photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-4">
+              {product.media.photos.map((photo: string, idx: number) =>
+                photo.toLowerCase() !== "none" ? (
+                  <div key={idx} className="relative w-full h-40">
+                    <Image
+                      src={photo}
+                      alt={`${product.title} photo ${idx + 1}`}
+                      fill
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                      className="rounded-lg"
+                    />
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -119,13 +119,11 @@ export default async function ProductPage({ params }: PageProps) {
         {/* Tombol Download */}
         {validDownloadButtons.length > 0 && (
           <div className="mt-4 space-y-4">
-            {validDownloadButtons.map((btn, index) => (
-              <div key={index} className="flex items-center space-x-4">
+            {validDownloadButtons.map((btn: DownloadButton, index: number) => (
+              <div key={`${btn.title}-${index}`} className="flex items-center space-x-4">
                 <span className="text-lg font-medium">{btn.label}</span>
                 <a href={btn.link} target="_blank" rel="noopener noreferrer">
-                  <button className="p-5 pb-1 pt-1 rounded-2xl bg-red-700 text-white">
-                    {btn.title}
-                  </button>
+                  <button className="p-5 pb-1 pt-1 rounded-2xl bg-red-700 text-white">{btn.title}</button>
                 </a>
               </div>
             ))}
