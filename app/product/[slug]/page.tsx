@@ -1,13 +1,10 @@
+// app/product/[slug]/page.tsx
 import Image from "next/image";
 import { products, Product } from "../../data/products";
 import CommentsSection from "@/app/components/CommentsSection";
 import PageViewCounter from "@/app/components/PageViewCounter";
 import SidebarComponent from "@/app/sidebar";
 import MobileComponent from "@/app/components/addons/mobileheader";
-
-interface PageProps {
-  params: { slug: string };
-}
 
 // Tipe tombol unduhan
 type DownloadButton = {
@@ -42,10 +39,13 @@ function convertYoutubeUrl(url: string): string {
   }
 }
 
-export default function ProductPage({ params }: PageProps) {
+// ❗️Hindari nama `PageProps` di sini agar tidak bentrok dengan Next.
+type RouteParams = { slug: string };
+
+export default function Page({ params }: { params: RouteParams }) {
   const { slug } = params;
 
-  // Cari product dan treat sebagai ProductWithDownloads agar TS tahu ada downloadButtons (opsional)
+  // Cast ke ProductWithDownloads agar TS tahu ada downloadButtons (opsional)
   const product: ProductWithDownloads | undefined = (products as ProductWithDownloads[]).find((p) => p.slug === slug);
 
   if (!product) {
@@ -62,7 +62,7 @@ export default function ProductPage({ params }: PageProps) {
         <SidebarComponent />
       </div>
 
-      {/* Mobile header/component (jika memang diinginkan di bagian atas untuk mobile) */}
+      {/* Mobile header/component (jika memang ingin muncul di atas untuk mobile) */}
       <div className="md:hidden">
         <MobileComponent />
       </div>
@@ -93,16 +93,7 @@ export default function ProductPage({ params }: PageProps) {
               {product.media.photos.map((photo: string, idx: number) =>
                 photo.toLowerCase() !== "none" ? (
                   <div key={idx} className="relative w-full h-40">
-                    <Image
-                      src={photo}
-                      alt={`${product.title} photo ${idx + 1}`}
-                      fill
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                      className="rounded-lg"
-                    />
+                    <Image src={photo} alt={`${product.title} photo ${idx + 1}`} fill style={{ objectFit: "cover", objectPosition: "center" }} className="rounded-lg" />
                   </div>
                 ) : null
               )}
