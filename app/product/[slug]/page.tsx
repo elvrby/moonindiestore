@@ -6,19 +6,9 @@ import PageViewCounter from "@/app/components/PageViewCounter";
 import SidebarComponent from "@/app/sidebar";
 import MobileComponent from "@/app/components/addons/mobileheader";
 
-// Tipe tombol unduhan
-type DownloadButton = {
-  label: string;
-  title: string;
-  link: string;
-};
+type DownloadButton = { label: string; title: string; link: string };
+type ProductWithDownloads = Product & { downloadButtons?: DownloadButton[] };
 
-// Memperluas tipe Product agar mendukung downloadButtons (opsional)
-type ProductWithDownloads = Product & {
-  downloadButtons?: DownloadButton[];
-};
-
-// Fungsi untuk mengonversi URL YouTube ke URL embed
 function convertYoutubeUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);
@@ -28,50 +18,39 @@ function convertYoutubeUrl(url: string): string {
     }
     if (parsedUrl.hostname.includes("youtube.com")) {
       const videoId = parsedUrl.searchParams.get("v");
-      if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}`;
-      }
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
     }
     return url;
-  } catch (error) {
-    console.warn("Invalid YouTube URL:", url, error);
+  } catch (e) {
+    console.warn("Invalid YouTube URL:", url, e);
     return url;
   }
 }
 
-// ❗️Hindari nama `PageProps` di sini agar tidak bentrok dengan Next.
-type RouteParams = { slug: string };
-
-export default function Page({ params }: { params: RouteParams }) {
+export default function Page({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
-  // Cast ke ProductWithDownloads agar TS tahu ada downloadButtons (opsional)
   const product: ProductWithDownloads | undefined = (products as ProductWithDownloads[]).find((p) => p.slug === slug);
 
   if (!product) {
     return <div className="text-center mt-10">Product not found</div>;
   }
 
-  // Filter downloadButtons yang memiliki link valid (tidak "none")
   const validDownloadButtons: DownloadButton[] = product.downloadButtons?.filter((btn: DownloadButton) => btn.link && btn.link.toLowerCase() !== "none") ?? [];
 
   return (
     <div className="flex flex-col md:flex-row">
-      {/* Sidebar: hanya tampil di desktop dan berada di sebelah kiri */}
       <div className="hidden md:block md:order-1 md:w-72">
         <SidebarComponent />
       </div>
 
-      {/* Mobile header/component (jika memang ingin muncul di atas untuk mobile) */}
       <div className="md:hidden">
         <MobileComponent />
       </div>
 
-      {/* Media: tampil di atas pada mobile (order-1) dan di kanan pada desktop (order-3) */}
       <div className="order-1 w-full p-5 md:order-3 md:w-2/5">
         <div className="space-y-4">
-          {/* Video */}
-          {product.media && product.media.video && product.media.video.toLowerCase() !== "none" && (
+          {product.media?.video && product.media.video.toLowerCase() !== "none" && (
             <div className="w-full h-96 mb-4">
               {product.media.video.includes("youtube") || product.media.video.includes("youtu.be") ? (
                 <iframe
@@ -87,8 +66,7 @@ export default function Page({ params }: { params: RouteParams }) {
             </div>
           )}
 
-          {/* Grid Foto */}
-          {product.media && product.media.photos && product.media.photos.length > 0 && (
+          {product.media?.photos && product.media.photos.length > 0 && (
             <div className="grid grid-cols-2 gap-4">
               {product.media.photos.map((photo: string, idx: number) =>
                 photo.toLowerCase() !== "none" ? (
@@ -102,12 +80,10 @@ export default function Page({ params }: { params: RouteParams }) {
         </div>
       </div>
 
-      {/* Konten Utama: tampil di tengah pada desktop (order-2) */}
       <div className="order-2 w-full md:flex-1 p-4">
         <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
         <p className="text-lg">{product.description}</p>
 
-        {/* Tombol Download */}
         {validDownloadButtons.length > 0 && (
           <div className="mt-4 space-y-4">
             {validDownloadButtons.map((btn: DownloadButton, index: number) => (
