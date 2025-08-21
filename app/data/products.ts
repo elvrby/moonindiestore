@@ -1,14 +1,8 @@
 // app/data/products.ts
 
-export interface DownloadButton {
-  label: string;
-  title: string;
-  link: string;
-}
-
 export interface Media {
   video?: string; // URL video (misalnya: mp4) atau "none"
-  photos?: string[]; // Array URL foto atau "none"
+  photos?: string[]; // Array URL foto
 }
 
 export interface Product {
@@ -20,8 +14,8 @@ export interface Product {
   image: string;
   description: string;
   price: string;
-  beliSekarang: string; //ubah fungsi ini
-  downloadButtons?: DownloadButton[];
+  beliSekarang: string; // tetap sama
+  beratGram: number; // NEW: berat barang dalam gram
   media?: Media;
 }
 
@@ -35,16 +29,9 @@ export const products: Product[] = [
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
     description: "Aki Motor Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
     price: " RP. 135.000 - 95.000",
-    beliSekarang: "beli", //ubah fungsi ini
-    downloadButtons: [
-      {
-        label: "Torrent",
-        title: "Download",
-        link: "https://res.cloudinary.com/dlv5ytn1a/raw/upload/fl_attachment/ojazcofkacibd4gskm1v.torrent",
-      },
-    ],
+    beliSekarang: "beli",
+    beratGram: 1500,
     media: {
-      // Misalnya, Adobe tidak punya video, jadi bisa diisi "none" atau tidak disertakan
       video: "none",
       photos: ["https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png"],
     },
@@ -58,14 +45,8 @@ export const products: Product[] = [
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744830101/Heybatt_guhprh.jpg",
     description: "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
     price: "860.000 - 425.000",
-    beliSekarang: "beli", //ubah fungsi ini
-    downloadButtons: [
-      {
-        label: "Ranoz.gg",
-        title: "Download",
-        link: "https://ranoz.gg/file/yxzBQqbq",
-      },
-    ],
+    beliSekarang: "beli",
+    beratGram: 15000,
     media: {
       video: "none",
       photos: [
@@ -85,14 +66,8 @@ export const products: Product[] = [
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719511/Heybatt_GTZ7S_kjstje.jpg",
     description: "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
     price: "235.000 - 145.800",
-    beliSekarang: "beli", //ubah fungsi ini
-    downloadButtons: [
-      {
-        label: "Ranoz.gg",
-        title: "Download",
-        link: "https://ranoz.gg/file/yxzBQqbq",
-      },
-    ],
+    beliSekarang: "beli",
+    beratGram: 1800,
     media: {
       video: "none",
       photos: [
@@ -112,14 +87,8 @@ export const products: Product[] = [
     image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719512/Motobatt_GTZ5S_dpdb8y.jpg",
     description: "Aki Motor Motobatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
     price: "220.000 - 175.800",
-    beliSekarang: "beli", //ubah fungsi ini
-    downloadButtons: [
-      {
-        label: "Ranoz.gg",
-        title: "Download",
-        link: "https://ranoz.gg/file/yxzBQqbq",
-      },
-    ],
+    beliSekarang: "beli",
+    beratGram: 1500,
     media: {
       video: "none",
       photos: [

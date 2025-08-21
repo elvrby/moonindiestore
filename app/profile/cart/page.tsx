@@ -34,9 +34,11 @@ const parsePrice = (price: string): number => {
 };
 
 const cities = ["Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi", "Bandung", "Surabaya", "Medan", "Semarang"];
+
+/** Tarif jasa pengiriman dalam Rp per KG */
 const shippingServices = [
   { name: "JNE", cost: 20000, icon: "🚚" },
-  { name: "SiCepat", cost: 15000, icon: "⚡" },
+  { name: "SiCepat", cost: 2500, icon: "⚡" }, // ⬅️ 2.500 per kg
   { name: "Grab Instant", cost: 26000, icon: "🏍️" }, // hanya Jabodetabek
 ];
 
@@ -62,7 +64,7 @@ function ConfirmModal({ open, title, onConfirm, onCancel }: { open: boolean; tit
   );
 }
 
-/** Modal Checkout seperti ProductPopup, mengembalikan city, shipping, quantities, totalPrice, dan selectedIds (dibekukan saat klik Bayar) */
+/** Modal Checkout: hitung subtotal, berat, ongkir berbasis berat (Rp/kg) */
 function CheckoutModal({
   open,
   items,
@@ -74,13 +76,7 @@ function CheckoutModal({
   items: CartItem[];
   productById: Map<string, Product>;
   onClose: () => void;
-  onConfirmPay: (payload: {
-    city: string;
-    shipping: string;
-    quantities: Record<string, number>;
-    totalPrice: number;
-    selectedIds: string[]; // ⬅️ freeze daftar id yang dibayar
-  }) => void;
+  onConfirmPay: (payload: { city: string; shipping: string; quantities: Record<string, number>; totalPrice: number; selectedIds: string[] }) => void;
 }) {
   const [selectedCity, setSelectedCity] = useState<string>("Jakarta");
   const [selectedShipping, setSelectedShipping] = useState<string>("JNE");
@@ -108,6 +104,7 @@ function CheckoutModal({
   const decrease = (pid: string) => setQtyMap((prev) => ({ ...prev, [pid]: Math.max(1, (prev[pid] || 1) - 1) }));
   const changeQty = (pid: string, val: number) => setQtyMap((prev) => ({ ...prev, [pid]: Number.isFinite(val) && val > 0 ? Math.floor(val) : prev[pid] || 1 }));
 
+  /** Subtotal harga produk */
   const productsCost = useMemo(() => {
     return items.reduce((sum, it) => {
       const p = productById.get(it.productId);
@@ -117,16 +114,41 @@ function CheckoutModal({
     }, 0);
   }, [items, qtyMap, productById]);
 
+  /** Tarif per kg dari jasa yang dipilih */
   const shippingUnitCost = useMemo(() => {
     const svc = shippingServices.find((s) => s.name === selectedShipping);
     return svc ? svc.cost : 0;
   }, [selectedShipping]);
 
-  const totalQty = useMemo(() => items.reduce((acc, it) => acc + (qtyMap[it.productId] ?? it.quantity), 0), [items, qtyMap]);
+  /** Berat total (gram) dari item terpilih */
+  const totalWeightGram = useMemo(() => {
+    return items.reduce((acc, it) => {
+      const p = productById.get(it.productId);
+      const qty = qtyMap[it.productId] ?? it.quantity;
+      const berat = p?.beratGram ?? 0;
+      return acc + berat * qty;
+    }, 0);
+  }, [items, qtyMap, productById]);
 
-  const shippingCost = shippingUnitCost * totalQty;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const grandTotal = productsCost + shippingCost;
+  const totalWeightKg = useMemo(() => totalWeightGram / 1000, [totalWeightGram]);
+
+  /**
+   * Berat yang ditagihkan:
+   * - < 2 kg => 1 kg (sesuai contoh)
+   * - >= 2 kg => ceil(total kg)
+   * - 0 kg => 0
+   */
+  const billedWeightKg = useMemo(() => {
+    const kg = totalWeightKg;
+    if (kg <= 0) return 0;
+    return kg < 2 ? 1 : Math.ceil(kg);
+  }, [totalWeightKg]);
+
+  /** Ongkir berbasis berat ditagih */
+  const shippingCost = useMemo(() => shippingUnitCost * billedWeightKg, [shippingUnitCost, billedWeightKg]);
+
+  /** Total harga keseluruhan */
+  const grandTotal = useMemo(() => productsCost + shippingCost, [productsCost, shippingCost]);
 
   if (!open) return null;
 
@@ -161,6 +183,11 @@ function CheckoutModal({
                     <h4 className="font-semibold text-gray-900 truncate">{p.title}</h4>
                     <p className="text-xs text-gray-500 mt-0.5">{p.category}</p>
                     <div className="mt-1 text-sm text-gray-700">Rp{unit.toLocaleString("id-ID")} / item</div>
+                    {typeof p.beratGram === "number" && (
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        Berat: {(p.beratGram / 1000).toFixed(2)} kg × {qty}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => decrease(it.productId)} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700">
@@ -221,17 +248,24 @@ function CheckoutModal({
               <span className="text-gray-600">Subtotal Produk</span>
               <span className="font-medium">Rp{productsCost.toLocaleString("id-ID")}</span>
             </div>
+
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Berat total</span>
+              <span>
+                {totalWeightKg.toFixed(2)} kg {billedWeightKg > 0 && <>(ditagih {billedWeightKg} kg)</>}
+              </span>
+            </div>
+
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
-                Pengiriman ({selectedShipping}) × {items.reduce((acc, i) => acc + (qtyMap[i.productId] ?? i.quantity), 0)} kg
+                Pengiriman ({selectedShipping}) × {billedWeightKg} kg
               </span>
-              <span className="font-medium">Rp{(shippingUnitCost * items.reduce((acc, i) => acc + (qtyMap[i.productId] ?? i.quantity), 0)).toLocaleString("id-ID")}</span>
+              <span className="font-medium">Rp{shippingCost.toLocaleString("id-ID")}</span>
             </div>
+
             <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
               <span className="font-bold text-gray-800">Total</span>
-              <span className="font-bold text-lg text-black">
-                Rp{(productsCost + shippingUnitCost * items.reduce((acc, i) => acc + (qtyMap[i.productId] ?? i.quantity), 0)).toLocaleString("id-ID")}
-              </span>
+              <span className="font-bold text-lg text-black">Rp{grandTotal.toLocaleString("id-ID")}</span>
             </div>
           </div>
 
@@ -248,8 +282,8 @@ function CheckoutModal({
                   city: selectedCity,
                   shipping: selectedShipping,
                   quantities: qtyMap,
-                  totalPrice: productsCost + shippingUnitCost * items.reduce((acc, i) => acc + (qtyMap[i.productId] ?? i.quantity), 0),
-                  selectedIds: items.map((i) => i.productId), // ⬅️ freeze id yang akan dihapus
+                  totalPrice: grandTotal, // ⬅️ gunakan total baru
+                  selectedIds: items.map((i) => i.productId),
                 });
                 setTimeout(() => setIsLoading(false), 400);
               }}
@@ -323,7 +357,7 @@ const CartPage: React.FC = () => {
           quantity: Math.max(1, Number(it.quantity) || 1),
         }));
         setCart(normalized);
-        setSelected((prev) => new Set([...prev].filter((id) => normalized.some((i) => i.productId === id))));
+        setSelected((prev) => new Set([...prev].filter((id) => normalized.some((i) => i.productId === id)))); // keep only existing ids
         setLoading(false);
       },
       () => setLoading(false)
@@ -354,7 +388,7 @@ const CartPage: React.FC = () => {
   const handleConfirmRemove = async () => {
     if (!confirmPid || !userUid) return;
     try {
-      await removeManyFromCart(userUid, [confirmPid]); // aman kalau single
+      await removeManyFromCart(userUid, [confirmPid]);
     } catch (err) {
       console.error("Failed to remove from cart", err);
     } finally {
@@ -372,7 +406,7 @@ const CartPage: React.FC = () => {
     shipping,
     quantities,
     totalPrice,
-    selectedIds, // ⬅️ freeze ids yang harus dihapus setelah sukses
+    selectedIds,
   }: {
     city: string;
     shipping: string;
@@ -395,7 +429,7 @@ const CartPage: React.FC = () => {
       const newOrderId = `order-${Date.now()}`;
       setOrderId(newOrderId);
 
-      // minta token (TANPA redirect url dari server)
+      // minta token (tanpa redirect url)
       const resp = await fetch("/api/midtrans/charge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -448,9 +482,7 @@ const CartPage: React.FC = () => {
               paidAt: new Date(),
               midtrans: result,
             });
-            // ✅ HAPUS SEMUA item terpilih SEKALIGUS (atomik)
             await removeManyFromCart(uid, selectedIds);
-            // kosongkan pilihan di UI
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             setSelected((_) => new Set());
           } catch {
