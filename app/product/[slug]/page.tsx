@@ -6,9 +6,19 @@ import PageViewCounter from "@/app/components/PageViewCounter";
 import SidebarComponent from "@/app/sidebar";
 import MobileComponent from "@/app/components/addons/mobileheader";
 
-type DownloadButton = { label: string; title: string; link: string };
-type ProductWithDownloads = Product & { downloadButtons?: DownloadButton[] };
+// Tipe tombol unduhan
+type DownloadButton = {
+  label: string;
+  title: string;
+  link: string;
+};
 
+// Memperluas tipe Product agar mendukung downloadButtons (opsional)
+type ProductWithDownloads = Product & {
+  downloadButtons?: DownloadButton[];
+};
+
+// Fungsi untuk mengonversi URL YouTube ke URL embed
 function convertYoutubeUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);
@@ -18,17 +28,20 @@ function convertYoutubeUrl(url: string): string {
     }
     if (parsedUrl.hostname.includes("youtube.com")) {
       const videoId = parsedUrl.searchParams.get("v");
-      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
     }
     return url;
-  } catch (e) {
-    console.warn("Invalid YouTube URL:", url, e);
+  } catch (error) {
+    console.warn("Invalid YouTube URL:", url, error);
     return url;
   }
 }
 
-export default function Page({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+// ❗ Match-kan dengan PageProps yang saat ini menuntut `params: Promise<any>`
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   const product: ProductWithDownloads | undefined = (products as ProductWithDownloads[]).find((p) => p.slug === slug);
 
@@ -40,16 +53,20 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   return (
     <div className="flex flex-col md:flex-row">
+      {/* Sidebar: desktop kiri */}
       <div className="hidden md:block md:order-1 md:w-72">
         <SidebarComponent />
       </div>
 
+      {/* Mobile header */}
       <div className="md:hidden">
         <MobileComponent />
       </div>
 
+      {/* Media: mobile atas, desktop kanan */}
       <div className="order-1 w-full p-5 md:order-3 md:w-2/5">
         <div className="space-y-4">
+          {/* Video */}
           {product.media?.video && product.media.video.toLowerCase() !== "none" && (
             <div className="w-full h-96 mb-4">
               {product.media.video.includes("youtube") || product.media.video.includes("youtu.be") ? (
@@ -66,6 +83,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             </div>
           )}
 
+          {/* Grid Foto */}
           {product.media?.photos && product.media.photos.length > 0 && (
             <div className="grid grid-cols-2 gap-4">
               {product.media.photos.map((photo: string, idx: number) =>
@@ -80,10 +98,12 @@ export default function Page({ params }: { params: { slug: string } }) {
         </div>
       </div>
 
+      {/* Konten Utama */}
       <div className="order-2 w-full md:flex-1 p-4">
         <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
         <p className="text-lg">{product.description}</p>
 
+        {/* Tombol Download */}
         {validDownloadButtons.length > 0 && (
           <div className="mt-4 space-y-4">
             {validDownloadButtons.map((btn: DownloadButton, index: number) => (
