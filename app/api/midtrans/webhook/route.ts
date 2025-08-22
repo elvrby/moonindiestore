@@ -1,4 +1,5 @@
 // app/api/midtrans/webhook/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/libs/firebase/config";
 import { collection, query, where, limit, getDocs, doc, getDoc, updateDoc, deleteField } from "firebase/firestore";

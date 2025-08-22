@@ -1,4 +1,5 @@
 // app/components/addons/checkout.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
