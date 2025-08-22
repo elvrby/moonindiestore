@@ -1,4 +1,5 @@
-// src/app/components/products/ProductsLayout.tsx (ubah path sesuai struktur project-mu)
+// src/app/components/products/ProductsLayout.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -7,70 +8,122 @@ import { Inter } from "next/font/google";
 import { useEffect, useMemo, useState } from "react";
 
 import { products, type Product } from "@/app/data/products";
-import ProductPopup from "@/app/components/addons/productPopup";
+import Checkout from "@/app/components/addons/checkout";
+import AddressMenu from "@/app/components/addons/addressmenu";
+import type { ShippingAddress } from "@/app/data/locations";
 
 import { useUserSession } from "@/hooks/use-user-session";
 import {
   addToCart,
   addProductToFavorites,
   removeProductFromFavorites,
-  signInWithGoogle, // <- pastikan bertipe Promise<string | null>
+  signInWithGoogle, // Promise<string | null>
 } from "@/libs/firebase/auth";
 
-import { doc, onSnapshot } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { doc, onSnapshot, setDoc, updateDoc, arrayUnion, serverTimestamp } from "firebase/firestore";
 import { firebaseFirestore } from "@/libs/firebase/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
 type Category = "semua" | "Aki Motor" | "Aki Mobil";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type CartItem = {
   productId: string;
   quantity: number;
 };
 
+// === Snap Types ===
+type SnapCallbacks = {
+  onSuccess?: (result: unknown) => void;
+  onPending?: (result: unknown) => void;
+  onError?: (result: unknown) => void;
+  onClose?: () => void;
+};
+type SnapAPI = { pay: (token: string, callbacks?: SnapCallbacks) => void };
+type SnapWindow = Window & { snap?: SnapAPI };
+
 const NewProductComponent: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>("semua");
-  const [showPopup, setShowPopup] = useState<boolean>(false);
+
+  // === Checkout overlay state (menggantikan ProductPopup) ===
+  const [showCheckout, setShowCheckout] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 
-  // uid dari sesi user (harusnya string | null)
+  // uid dari sesi user (string | null)
   const userUid = useUserSession(null) ?? null;
+  // UID efektif (ambil dari hook atau dari auth.currentUser saat sudah signin)
+  const effectiveUid = userUid ?? getAuth().currentUser?.uid ?? null;
 
   // Favorit lokal (untuk toggle instan di UI)
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
-  // Realtime sync favorites dari Firestore
+  // Address state untuk Checkout
+  const [address, setAddress] = useState<ShippingAddress | null>(null);
+  const hasAddress = !!(address && address.city && address.kecamatan && address.kelurahan && address.postalCode);
+  const [openAddressModal, setOpenAddressModal] = useState(false);
+
+  // Status pembayaran (modals)
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPending, setShowPending] = useState(false);
+  const [showError, setShowError] = useState<{ open: boolean; message?: string }>({ open: false });
+  const [paymentResult, setPaymentResult] = useState<any>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
+
+  // Realtime sync favorites + address dari Firestore (gunakan UID yang sudah pasti string)
   useEffect(() => {
-    if (!userUid) {
+    if (!effectiveUid) {
       setFavoriteIds(new Set());
+      setAddress(null);
       return;
     }
-    const ref = doc(firebaseFirestore, "users", userUid);
+    const ref = doc(firebaseFirestore, "users", effectiveUid!);
     const unsub = onSnapshot(ref, (snap) => {
       if (!snap.exists()) {
         setFavoriteIds(new Set());
+        setAddress(null);
         return;
       }
-      const data = snap.data() as { favorites?: string[] };
+      const data = snap.data() as { favorites?: string[]; shippingAddress?: ShippingAddress | null };
       const favs = Array.isArray(data?.favorites) ? data.favorites : [];
       setFavoriteIds(new Set(favs.map(String)));
+      setAddress(data?.shippingAddress ?? null);
     });
     return () => unsub();
-  }, [userUid]);
+  }, [effectiveUid]);
+
+  // Load Midtrans Snap
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
+    if (typeof window === "undefined" || !key) return;
+    const w = window as SnapWindow;
+    if (w.snap) return;
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", key);
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
 
   const ensureUid = async (): Promise<string | null> => {
-    if (userUid) return userUid;
-    const uid = await signInWithGoogle(); // <- sekarang pasti string | null
+    if (effectiveUid) return effectiveUid;
+    const uid = await signInWithGoogle();
     return uid ?? null;
   };
 
-  const handleBuyClick = (productId: number, e: React.MouseEvent) => {
+  const productById = useMemo(() => {
+    const map = new Map<string, Product>();
+    for (const p of products) map.set(String(p.id), p);
+    return map;
+  }, []);
+
+  const handleBuyClick = async (productId: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const uid = await ensureUid();
+    if (!uid) return;
     setSelectedProductId(productId);
-    setShowPopup(true);
+    setShowCheckout(true);
   };
 
   const handleAddToCart = async (productId: number, e: React.MouseEvent) => {
@@ -80,7 +133,7 @@ const NewProductComponent: React.FC = () => {
       const uid = await ensureUid();
       if (!uid) return;
       await addToCart(uid, { productId: String(productId), quantity: 1 });
-      // Bisa tambahkan toast sukses di sini
+      // TODO: toast sukses
     } catch (err) {
       console.error("Failed to add to cart", err);
     }
@@ -111,6 +164,158 @@ const NewProductComponent: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to toggle favorite", err);
+    }
+  };
+
+  // === Konfirmasi bayar dari Checkout ===
+  const handleConfirmPay = async ({
+    city,
+    shipping,
+    quantities,
+    totalPrice,
+    selectedIds,
+  }: {
+    city: string;
+    shipping: string;
+    quantities: Record<string, number>;
+    totalPrice: number;
+    selectedIds: string[];
+  }) => {
+    try {
+      // Pastikan user terlogin
+      let authUser = getAuth().currentUser;
+      if (!authUser) {
+        const uid = await ensureUid();
+        if (!uid) {
+          setShowError({ open: true, message: "Silakan login terlebih dahulu." });
+          return;
+        }
+        authUser = getAuth().currentUser;
+      }
+      if (!authUser) {
+        setShowError({ open: true, message: "Gagal mendapatkan sesi pengguna." });
+        return;
+      }
+
+      if (!hasAddress) {
+        setShowError({ open: true, message: "Alamat penerima belum diisi. Silakan isi alamat penerima." });
+        return;
+      }
+
+      const uid = authUser.uid;
+      const username = authUser.displayName || "Tanpa Nama";
+      const email = authUser.email || "Tanpa Email";
+
+      const newOrderId = `order-${Date.now()}`;
+      setOrderId(newOrderId);
+
+      // Minta token Snap
+      const resp = await fetch("/api/midtrans/charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalPrice, orderId: newOrderId }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.token) {
+        setShowError({ open: true, message: data?.error || "Gagal membuat transaksi." });
+        return;
+      }
+
+      // Siapkan items (hanya produk terpilih)
+      const itemsPayload = selectedIds.map((pid) => {
+        const p = productById.get(pid);
+        const price = p
+          ? (() => {
+              const parts = p.price.split("-");
+              const value = parts[parts.length - 1].trim().replace(/[^\d]/g, "");
+              return parseInt(value, 10);
+            })()
+          : 0;
+        return {
+          productId: pid,
+          productTitle: p?.title || "",
+          quantity: quantities[pid] ?? 1,
+          pricePerItem: price,
+          image: p?.image || "/placeholder.png",
+        };
+      });
+
+      // Simpan order awal
+      await setDoc(doc(firebaseFirestore, "orders", newOrderId), {
+        orderId: newOrderId,
+        userUid: uid,
+        username,
+        email,
+        items: itemsPayload,
+        totalPrice,
+        shipping,
+        city,
+        shippingAddress: { ...address! },
+        createdAt: new Date(),
+        status: "created",
+        snapToken: data.token,
+        midtransOrderId: newOrderId,
+        midtransOrderIds: [newOrderId],
+      });
+
+      // Tambah orderId di user profile
+      await setDoc(doc(firebaseFirestore, "users", uid), { orderIds: arrayUnion(newOrderId), lastOrderAt: serverTimestamp() }, { merge: true });
+
+      // Bayar via Snap
+      const w = window as SnapWindow;
+      if (!w.snap) {
+        setShowError({ open: true, message: "Snap JS belum dimuat." });
+        return;
+      }
+
+      setShowCheckout(false);
+
+      w.snap.pay(data.token, {
+        onSuccess: async (result) => {
+          setPaymentResult(result);
+          try {
+            await updateDoc(doc(firebaseFirestore, "orders", newOrderId), {
+              status: "success",
+              paidAt: new Date(),
+              midtrans: result,
+            });
+            await updateDoc(doc(firebaseFirestore, "users", uid), {
+              [`ordersStatus.${newOrderId}`]: "success",
+              lastOrderAt: serverTimestamp(),
+            });
+          } catch {}
+          setShowSuccess(true);
+        },
+        onPending: async (result) => {
+          setPaymentResult(result);
+          try {
+            await updateDoc(doc(firebaseFirestore, "orders", newOrderId), { status: "pending", midtrans: result });
+            await updateDoc(doc(firebaseFirestore, "users", uid), {
+              [`ordersStatus.${newOrderId}`]: "pending",
+              lastOrderAt: serverTimestamp(),
+            });
+          } catch {}
+          setShowPending(true);
+        },
+        onError: async (result) => {
+          try {
+            await updateDoc(doc(firebaseFirestore, "orders", newOrderId), {
+              status: "error",
+              errorAt: new Date(),
+              midtrans: result,
+            });
+            await updateDoc(doc(firebaseFirestore, "users", uid), {
+              [`ordersStatus.${newOrderId}`]: "error",
+              lastOrderAt: serverTimestamp(),
+            });
+          } catch {}
+          setShowError({ open: true, message: "Terjadi kesalahan pembayaran." });
+        },
+        onClose: () => {},
+      });
+    } catch (err) {
+      console.error("Error saat memulai pembayaran:", err);
+      setShowError({ open: true, message: "Terjadi kesalahan. Silakan coba lagi." });
     }
   };
 
@@ -257,8 +462,138 @@ const NewProductComponent: React.FC = () => {
         )}
       </div>
 
-      {/* Popup */}
-      {showPopup && selectedProductId && <ProductPopup productId={selectedProductId} onClose={() => setShowPopup(false)} />}
+      {/* === CHECKOUT OVERLAY (menggantikan ProductPopup) === */}
+      {showCheckout && selectedProductId && (
+        <div className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-sm animate-fadeIn overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-8" aria-modal="true" role="dialog">
+          {/* Card checkout tidak full-screen di mobile */}
+          <div className="mx-auto w-full max-w-md sm:max-w-3xl my-2 sm:my-6 rounded-2xl shadow-2xl animate-slideUp">
+            <Checkout
+              items={[{ productId: String(selectedProductId), quantity: 1 }]}
+              productById={productById}
+              onClose={() => setShowCheckout(false)}
+              onConfirmPay={handleConfirmPay}
+              shippingAddress={hasAddress ? address : null}
+              onEditAddress={() => setOpenAddressModal(true)}
+            />
+          </div>
+
+          <style jsx>{`
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+              }
+              to {
+                opacity: 1;
+              }
+            }
+            .animate-fadeIn {
+              animation: fadeIn 0.2s ease-out;
+            }
+
+            @keyframes slideUp {
+              from {
+                transform: translateY(16px) scale(0.98);
+                opacity: 0.92;
+              }
+              to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+              }
+            }
+            .animate-slideUp {
+              animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+          `}</style>
+        </div>
+      )}
+
+      {/* Address Menu (hanya render jika sudah ada UID string) */}
+      {effectiveUid && (
+        <AddressMenu open={openAddressModal} initial={hasAddress ? address : null} userUid={effectiveUid!} onClose={() => setOpenAddressModal(false)} onSaved={(addr) => setAddress(addr)} />
+      )}
+
+      {/* Success / Pending / Error Modals */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-black">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mx-auto mb-4">
+              <span className="text-3xl">✅</span>
+            </div>
+            <h3 className="text-xl font-bold text-center mb-2">Pembayaran Berhasil</h3>
+            {(paymentResult?.order_id || orderId) && (
+              <div className="bg-gray-50 rounded-xl p-3 text-sm mb-4">
+                <div className="flex justify-between">
+                  <span>ID Pesanan</span>
+                  <span className="font-medium">{paymentResult?.order_id || orderId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status</span>
+                  <span className="font-medium capitalize">{paymentResult?.transaction_status || "success"}</span>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setShowSuccess(false)} className="w-full py-3 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium">
+                Tutup
+              </button>
+              <Link href="/orders" className="w-full py-3 rounded-xl bg-black text-white hover:bg-gray-800 font-semibold text-center">
+                Lihat Pesanan
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPending && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mx-auto mb-4">
+              <span className="text-3xl">⏳</span>
+            </div>
+            <h3 className="text-xl font-bold text-center mb-2">Menunggu Pembayaran</h3>
+            {(paymentResult?.order_id || orderId) && (
+              <div className="bg-gray-50 rounded-xl p-3 text-sm mb-4">
+                <div className="flex justify-between">
+                  <span>ID Pesanan</span>
+                  <span className="font-medium">{paymentResult?.order_id || orderId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status</span>
+                  <span className="font-medium capitalize">{paymentResult?.transaction_status || "pending"}</span>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setShowPending(false)} className="w-full py-3 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium">
+                Nanti Saja
+              </button>
+              <Link href="/orders" className="w-full py-3 rounded-xl bg-black text-white hover:bg-gray-800 font-semibold text-center">
+                Lihat Pesanan
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showError.open && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mx-auto mb-4">
+              <span className="text-3xl">❌</span>
+            </div>
+            <h3 className="text-xl font-bold text-center mb-2">Pembayaran Gagal</h3>
+            <p className="text-gray-600 text-center mb-4">{showError.message || "Terjadi kesalahan saat memproses pembayaran."}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setShowError({ open: false })} className="w-full py-3 rounded-xl border border-gray-300 hover:bg-gray-50 font-medium">
+                Tutup
+              </button>
+              <button onClick={() => setShowCheckout(true)} className="w-full py-3 rounded-xl bg-black text-white hover:bg-gray-800 font-semibold">
+                Coba Lagi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
