@@ -1,5 +1,6 @@
 // src/app/components/products/ProductsLayout.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Image from "next/image";
