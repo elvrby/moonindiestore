@@ -119,7 +119,7 @@ export default function AddressMenu({ open, userUid, initial, onClose, onSaved }
       {/* Container modal: fullscreen di mobile, card di sm+ */}
       <div className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-2xl shadow-2xl overflow-hidden animate-slideUp flex flex-col">
         {/* Header (sticky di mobile) */}
-        <div className="bg-gradient-to-r from-black to-gray-800 p-4 sm:p-5 text-white relative sticky top-0 z-10">
+        <div className="bg-gradient-to-r from-black to-gray-800 p-4 sm:p-5 text-white sticky top-0 z-10">
           <div className="flex items-start justify-between gap-2">
             <h2 className="text-lg sm:text-xl font-bold">Alamat Penerima</h2>
             <button onClick={onClose} className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition shrink-0" aria-label="Tutup">

@@ -172,6 +172,11 @@ const HeaderComponent: React.FC = () => {
             Contact
           </Link>
 
+          {/* NEW: Orders */}
+          <Link href="/profile/pesanan" className="text-white hover:opacity-90">
+            Orders
+          </Link>
+
           {/* Spacer */}
           <div className="w-px h-6 bg-white/20 mx-2" />
 
@@ -277,6 +282,11 @@ const HeaderComponent: React.FC = () => {
             </Link>
             <Link href="/contact" className="px-4 py-3 text-white hover:bg-white/10 rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
               Contact
+            </Link>
+
+            {/* NEW: Orders */}
+            <Link href="/profile/pesanan" className="px-4 py-3 text-white hover:bg-white/10 rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
+              Orders
             </Link>
 
             <div className="my-2 mx-4 h-px bg-white/10" />
