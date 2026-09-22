@@ -8,7 +8,7 @@ export interface Media {
 export interface Product {
   id: number;
   slug: string;
-  category: "Aki Motor" | "Aki Mobil";
+  category: "Banner" | "Sablon" | "Lanyard" | "Sticker";
   title: string;
   subtitle: string;
   image: string;
@@ -20,15 +20,31 @@ export interface Product {
 }
 
 export const products: Product[] = [
+    {
+    id: 5,
+    slug: "Banner",
+    category: "Banner",
+    title: "Banner",
+    subtitle: "Banner custom untuk keperluan promosi dan iklan",
+    image: "/Images/banner.jpeg",
+    description: "Aki Motor Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
+    price: " RP. 25.000/M",
+    beliSekarang: "beli",
+    beratGram: 1500,
+    media: {
+      video: "none",
+      photos: ["https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png"],
+    },
+  },
   {
     id: 4,
-    slug: "Aki-Motor-Heybatt-GTZ-5S",
-    category: "Aki Motor",
-    title: "Aki Motor Heybatt GTZ 5S",
-    subtitle: "Bukan hanya melayanin pengantian Aki, tapi kami juga melayanin untuk charger battery dengan cepat dan dengan harga terjangkau",
-    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744789955/Aki-Heybatt-Garansi.png",
+    slug: "Sablon",
+    category: "Sablon",
+    title: "Sablon Baju",
+    subtitle: "Bahan baju dan bahan sablon yan berkualitas tinggi, cocok untuk keperluan promosi, event, atau personalisasi pakaian.",
+    image: "/Images/sablon.jpg",
     description: "Aki Motor Heybatt menyediakan berbagai aplikasi kreatif untuk desain grafis, video editing, dan pembuatan konten digital.",
-    price: " RP. 135.000 - 95.000",
+    price: " RP. 40.000 sd 75.000",
     beliSekarang: "beli",
     beratGram: 1500,
     media: {
@@ -38,13 +54,13 @@ export const products: Product[] = [
   },
   {
     id: 3,
-    slug: "Aki-Mobil-Heybatt",
-    category: "Aki Mobil",
-    title: "Aki Mobil Heybatt",
-    subtitle: "Aki Mobil Heybatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
-    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1744830101/Heybatt_guhprh.jpg",
+    slug: "Lanyard",
+    category: "Lanyard",
+    title: "Print Lanyard",
+    subtitle: "Cetak lanyard untuk Identitas Perusahaan atau Event dengan berbagai pilihan bahan dan warna.",
+    image: "/Images/lanyard.jpeg",
     description: "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
-    price: "860.000 - 425.000",
+    price: "25.000/Pcs",
     beliSekarang: "beli",
     beratGram: 15000,
     media: {
@@ -59,13 +75,13 @@ export const products: Product[] = [
   },
   {
     id: 2,
-    slug: "Aki-Motor-Heybatt-GTZ7S",
-    category: "Aki Motor",
-    title: "Aki Motor Heybatt GTZ7S",
-    subtitle: "Aki Motor Heybatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
-    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719511/Heybatt_GTZ7S_kjstje.jpg",
+    slug: "Sablon Jaket",
+    category: "Sablon",
+    title: "Sablon Jaket",
+    subtitle: "Sablon jaket dengan metode DTF yang awet dan tahan lama.",
+    image: "/Images/jaket.jpeg",
     description: "Microsoft Office adalah paket aplikasi produktivitas yang meliputi Word, Excel, PowerPoint, dan lain-lain untuk kebutuhan bisnis dan pendidikan.",
-    price: "235.000 - 145.800",
+    price: "RP. 100.000 sd 150.000",
     beliSekarang: "beli",
     beratGram: 1800,
     media: {
@@ -80,13 +96,13 @@ export const products: Product[] = [
   },
   {
     id: 1,
-    slug: "Aki-Motor-Motobatt",
-    category: "Aki Motor",
-    title: "Aki Motor Motobatt",
-    subtitle: "Aki Motor Motobatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
-    image: "https://res.cloudinary.com/djbum58xh/image/upload/v1755719512/Motobatt_GTZ5S_dpdb8y.jpg",
-    description: "Aki Motor Motobatt, pilihan terbaik untuk kendaraan anda, dengan harga yang bersahabat dan tenaga yang teruji kuat, cocok untuk anda",
-    price: "220.000 - 175.800",
+    slug: "Sticker",
+    category: "Sticker",
+    title: "Sticker",
+    subtitle: "Cetak stiker dengan berbagai macam pilihan bahan dan ukuran, cocok untuk keperluan promosi, dekorasi, atau personalisasi barang  ",
+    image: "/Images/Sticker.jpeg",
+    description: "Cetak stiker dengan berbagai macam pilihan bahan dan ukuran.",
+    price: "RP. 20.000/Lbr",
     beliSekarang: "beli",
     beratGram: 1500,
     media: {

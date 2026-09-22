@@ -27,7 +27,7 @@ import { firebaseFirestore } from "@/libs/firebase/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
-type Category = "semua" | "Aki Motor" | "Aki Mobil";
+type Category = "semua" | "Sablon" | "Banner";
 
 type CartItem = {
   productId: string;
@@ -330,26 +330,26 @@ const NewProductComponent: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-900/20 border border-red-800/30 rounded-full mb-4">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-red-400 tracking-wider uppercase">Our Products</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-900/20 border border-blue-800/30 rounded-full mb-4">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-blue-400 tracking-wider uppercase">Our Products</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-4">Products</h2>
+          <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-800 to-gray-400 bg-clip-text text-transparent mb-4">Products</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">Discover our premium collection of high-quality batteries for your vehicle needs</p>
         </div>
 
         {/* Category Filter */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-1.5">
-            {["semua", "Aki Motor", "Aki Mobil"].map((category) => (
+          <div className="inline-flex bg-gray-200/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-1.5">
+            {["semua", "Banner", "Sablon"].map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category as Category)}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 relative overflow-hidden group ${
-                  selectedCategory === category ? "bg-red-600 text-white shadow-lg shadow-red-600/20" : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  selectedCategory === category ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "text-gray-400 hover:text-white hover:bg-gray-400/50"
                 }`}
               >
-                {selectedCategory === category && <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-700 rounded-xl" />}
+                {selectedCategory === category && <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl" />}
                 <span className="relative z-10">{category === "semua" ? "All Products" : category}</span>
               </button>
             ))}
@@ -362,7 +362,7 @@ const NewProductComponent: React.FC = () => {
             const isFav = favoriteIds.has(String(product.id));
             return (
               <Link key={product.id} href={`/product/${product.slug}`}>
-                <div className="group bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-sm border border-gray-800/50 rounded-3xl overflow-hidden hover:border-gray-700/50 transition-all duration-500 hover:shadow-2xl hover:shadow-red-600/10 hover:-translate-y-2 h-full flex flex-col">
+                <div className="group bg-yellow-400 backdrop-blur-sm border border-gray-800/50 rounded-3xl overflow-hidden hover:border-gray-700/50 transition-all duration-500 hover:shadow-2xl hover:shadow-red-600/10 hover:-translate-y-2 h-full flex flex-col">
                   {/* Image */}
                   <div className="relative h-48 sm:h-52 md:h-56 overflow-hidden flex-shrink-0">
                     <Image
@@ -380,19 +380,19 @@ const NewProductComponent: React.FC = () => {
 
                   {/* Content */}
                   <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
-                    <h3 className="font-bold text-lg sm:text-xl mb-2 text-white group-hover:text-red-400 transition-colors duration-300 line-clamp-2">{product.title}</h3>
+                    <h3 className="font-bold text-lg sm:text-xl mb-2 text-white group-hover:text-red-600 transition-colors duration-300 line-clamp-2">{product.title}</h3>
 
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed flex-grow min-h-[2.5rem]">{product.subtitle}</p>
+                    <p className="text-black text-sm mb-4 line-clamp-2 leading-relaxed flex-grow min-h-[2.5rem]">{product.subtitle}</p>
 
                     {/* Price */}
                     <div className="mb-4 sm:mb-6">
                       {product.price.includes(" - ") ? (
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-gray-500 line-through text-sm">RP. {product.price.split(" - ")[0].replace("RP.", "").trim()}</span>
-                          <span className="text-red-400 font-bold text-lg">{product.price.split(" - ")[1]}</span>
+                          <span className="text-blue-500 font-bold text-lg">{product.price.split(" - ")[1]}</span>
                         </div>
                       ) : (
-                        <span className="text-red-400 font-bold text-lg">{product.price}</span>
+                        <span className="text-blue-700 font-bold text-lg">{product.price}</span>
                       )}
                     </div>
 
@@ -400,7 +400,7 @@ const NewProductComponent: React.FC = () => {
                     <div className="flex items-center gap-2 sm:gap-3 mt-auto">
                       <button
                         onClick={(e) => handleBuyClick(product.id, e)}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-red-600/25 text-sm sm:text-base"
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-600/25 text-sm sm:text-base"
                       >
                         Buy Now
                       </button>

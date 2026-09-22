@@ -152,8 +152,8 @@ const HeaderComponent: React.FC = () => {
       >
         <div className="flex-shrink-0">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Image src="/Images/Akimania-Icon.png" width={40} height={40} objectFit="cover" alt="car"></Image>
-            <span>Akimania</span>
+            <Image src="/Images/logomoon.jpg" className="rounded-full" width={40} height={40} objectFit="cover" alt="car"></Image>
+            <span>Moon Indie Store</span>
           </Link>
         </div>
 

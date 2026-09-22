@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Akimania",
+  title: "Moon Indie Store",
   description: "One way solution for your vehicle",
 };
 
