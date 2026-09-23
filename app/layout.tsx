@@ -17,7 +17,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Moon Indie Store",
   description: "One way solution for your vehicle",
-};
+}; 
 
 export default function RootLayout({
   children,
